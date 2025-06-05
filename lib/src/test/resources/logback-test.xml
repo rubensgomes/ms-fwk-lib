@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- imported from logbackext-lib -->
+  <include resource="logback-properties.xml"/>
+  <include resource="logback-console-appender.xml"/>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+  <logger name="org.springframework.web" level="DEBUG"/>
+  <logger name="com.rubensgomes.msframework" level="TRACE"/>
+
+
+</configuration>

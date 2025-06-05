@@ -1,0 +1,9 @@
+app:
+  web:
+    # default settings. every application must supply their own list.
+    allowed-methods:
+      - GET
+      - DELETE
+      - POST
+      - PUT
+      - HEAD

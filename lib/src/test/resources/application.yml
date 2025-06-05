@@ -1,0 +1,23 @@
+############################ test ###########################################
+spring:
+  output:
+    ansi:
+      # enable color output in the IDE console logging
+      enabled: always
+logging:
+  level:
+    com.rubensgomes.msframework: "trace"
+server:
+  port: 8080
+  servlet:
+    context-path: "/"
+  shutdown: "graceful"
+debug: false
+---
+spring:
+  config:
+    activate:
+      on-profile: "empty-allowed-methods"
+app:
+  web:
+    allowed-methods:

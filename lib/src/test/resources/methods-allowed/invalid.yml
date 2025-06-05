@@ -1,0 +1,17 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+logging:
+  level:
+    com.rubensgomes.msframework: "trace"
+debug: true
+app:
+  web:
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - INVALID
+      - HEAD
+      - DELETE
