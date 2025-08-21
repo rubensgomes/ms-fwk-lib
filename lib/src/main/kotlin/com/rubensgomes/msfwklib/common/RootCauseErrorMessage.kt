@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.common
+package com.rubensgomes.msfwklib.common
 
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.Logger
@@ -28,7 +28,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
  *
  * @author Rubens Gomes
  */
-object RootCauseMessage {
+object RootCauseErrorMessage {
     /** A factory static method to resolve the root cause error message from the given exception. */
     fun create(ex: Throwable): String {
         log.debug("resolving root cause message from ex: {}", ex::class.simpleName)
@@ -61,5 +61,5 @@ object RootCauseMessage {
         return buff.toString()
     }
 
-    private val log: Logger = LoggerFactory.getLogger(RootCauseMessage::class.java)
+    private val log: Logger = LoggerFactory.getLogger(RootCauseErrorMessage::class.java)
 }

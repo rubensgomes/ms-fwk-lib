@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.common
+package com.rubensgomes.msfwklib.common
 
 /**
  * Constant MDC key values and a list of all supported MDC keys. The list of MDC keys may be used

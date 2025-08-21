@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.aspect
+package com.rubensgomes.msfwklib.web.aspect
 
-import com.rubensgomes.msfmk.common.RootCauseMessage
-import com.rubensgomes.msfmk.dto.ApplicationErrorResponse
+import com.rubensgomes.msfwklib.common.RootCauseErrorMessage
+import com.rubensgomes.msreqresplib.dto.ApplicationErrorResponse
 import jakarta.servlet.http.HttpServletResponse
 import java.util.Locale
 import org.slf4j.Logger
@@ -613,7 +613,7 @@ class GlobalExceptionHandler {
 
     private fun logError(ex: Exception) {
         val errorMsg = ex.message
-        val errorNativeMsg = RootCauseMessage.create(ex)
+        val errorNativeMsg = RootCauseErrorMessage.create(ex)
         log.error("handle exception error [$errorMsg] and native error [$errorNativeMsg]", ex)
     }
 }

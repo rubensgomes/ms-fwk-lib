@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.filter
+package com.rubensgomes.msfwklib.web.filter
 
-import com.rubensgomes.msfmk.common.MDCConstants
-import com.rubensgomes.msfmk.threadlocal.ContextHolder
+import com.rubensgomes.msfwklib.common.MDCConstants
+import com.rubensgomes.msfwklib.threadlocal.ContextHolder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.config
+package com.rubensgomes.msfwklib.config
 
-import com.rubensgomes.msfmk.web.filter.MDCClearFilter
+import com.rubensgomes.msfwklib.web.filter.MDCClearFilter
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

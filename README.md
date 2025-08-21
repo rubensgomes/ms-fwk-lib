@@ -35,8 +35,12 @@ A Spring Boot infra-structure framework library for microservices.
 ```
 
 ```shell
-# only Rubens can publish
-./gradlew --info publish
+./gradlew --info clean test
+```
+
+```shell
+git commit -m "updated gradle-catalog" -a
+git push
 ```
 
 ```shell
@@ -44,5 +48,11 @@ A Spring Boot infra-structure framework library for microservices.
 ./gradlew --info release
 ```
 
+```shell
+git checkout release
+git pull
+./gradlew --info publish
+git checkout main
+```
 ---
 Author:  [Rubens Gomes](https://rubensgomes.com/)

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.filter
+package com.rubensgomes.msfwklib.web.filter
 
-import com.rubensgomes.msfmk.common.MDCConstants
+import com.rubensgomes.msfwklib.common.MDCConstants
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

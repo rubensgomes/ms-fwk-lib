@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.dto
-
-import com.rubensgomes.reqresp.dto.BaseResponse
+package com.rubensgomes.msfwklib.dto
 
 /**
  * Represents an error response returned by the API.
  *
- * This class extends [BaseResponse] and is used to encapsulate error details in a standardized
- * format for client consumption. Typically used in exception handling and global error handlers.
+ * This class is used to encapsulate error details in a standardized format for client consumption.
+ * Typically used in exception handling and global error handlers.
  */
-class ApplicationErrorResponse : BaseResponse() {}
+class ApplicationErrorResponse {
+    // Add error response properties as needed
+}

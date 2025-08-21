@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.dto
+package com.rubensgomes.msfwklib.dto
 
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 class ApplicationErrorResponseTest {
     @Test
     fun `should create ErrorResponse instance`() {
         val applicationErrorResponse = ApplicationErrorResponse()
-        assertTrue(applicationErrorResponse is ApplicationErrorResponse)
-        assertTrue(applicationErrorResponse is com.rubensgomes.reqresp.dto.BaseResponse)
+        assertNotNull(applicationErrorResponse)
     }
 }
