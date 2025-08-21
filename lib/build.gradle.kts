@@ -93,8 +93,10 @@ dependencies {
     implementation("org.apache.commons:commons-lang3")
     // io.github.oshai:kotlin-logging-jvm
     implementation(libs.kotlin.logging.jvm)
-    // com.rubensgomes:reqresp-lib
-    implementation(libs.reqresp.lib)
+    // com.rubensgomes:ms-ex-lib
+    implementation(libs.ms.ex.lib)
+    // com.rubensgomes:ms-reqresp-lib
+    implementation(libs.ms.reqresp.lib)
 
     // ########## testImplementation #############################################
     testImplementation("org.springframework.boot:spring-boot-starter-test")

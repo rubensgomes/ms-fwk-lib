@@ -1,10 +1,6 @@
-# ms-framework-lib
+# ms-fwk-lib
 
-A Spring infra-structure framework library for microservices.
-This library implements the following features:
-
-- parses incoming requests and stores common attributes in the MDC context to be
-  used in logging headers.
+A Spring Boot infra-structure framework library for microservices.
 
 ## Display Java Tools Installed
 
@@ -46,55 +42,6 @@ This library implements the following features:
 ```shell
 # only Rubens can release
 ./gradlew --info release
-```
-
-## usage
-
-### ~/.gradle/gradle.properties
-
-- make these system properties to be read from settings.gradle.kts
-  systemProp.repsyUsername=rubensgomes
-  systemProp.repsyPassword=<RESTRICTED>
-
-### settings.gradle.kts
-
-```kotlin
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-
-        maven {
-            url = uri("https://repo.repsy.io/mvn/rubensgomes/default/")
-            credentials {
-                username = System.getProperty("repsyUsername")
-                password = System.getProperty("repsyPassword")
-            }
-        }
-    }
-
-    versionCatalogs {
-        create("ctlg") {
-            from("com.rubensgomes:gradle-catalog:0.0.37")
-        }
-    }
-}
-```
-
-### build.gradle.kts
-
-```kotlin
-
-plugins {
-    // ...
-    id("version-catalog")
-    // ...
-}
-
-// ...
-dependencies {
-    implementation(ctlg.msfmk.lib)
-}
-// ...
 ```
 
 ---
