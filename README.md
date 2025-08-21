@@ -1,5 +1,10 @@
 # ms-framework-lib
+
 A Spring infra-structure framework library for microservices.
+This library implements the following features:
+
+- parses incoming requests and stores common attributes in the MDC context to be
+  used in logging headers.
 
 ## Display Java Tools Installed
 
