@@ -15,6 +15,8 @@
  */
 package com.rubensgomes.msfwklib.web.filter
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.rubensgomes.msfwklib.common.MDCConstants
 import com.rubensgomes.msfwklib.threadlocal.ContextHolder
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -24,7 +26,6 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.HttpServletRequest
-import kotlin.reflect.full.memberProperties
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 
@@ -52,14 +53,16 @@ private val log = KotlinLogging.logger {}
 @WebFilter("/api/*")
 class JsonRequestIntrospectFilter : Filter {
 
+    private val objectMapper = ObjectMapper()
+
     /**
      * Filters incoming requests to extract and store interesting properties from JSON request
      * bodies.
      *
      * This method checks if the request is a POST request with JSON content type, and if so, wraps
      * it in a [CachedBodyHttpServletRequest] to allow multiple reads of the request body. It then
-     * uses reflection to extract properties matching the [interestingProperties] set and stores
-     * them in the [ContextHolder] for thread-local access.
+     * parses the JSON content to extract properties matching the [MDCConstants.MDC_KEYS] set and
+     * stores them in the [ContextHolder] for thread-local access.
      *
      * @param request the servlet request to be processed
      * @param response the servlet response to be returned
@@ -73,20 +76,29 @@ class JsonRequestIntrospectFilter : Filter {
                 request.method == "POST" &&
                 request.contentType?.contains(MediaType.APPLICATION_JSON_VALUE) == true
         ) {
-            log.trace { "parsing request for fields: $MDCConstants.MDC_KEYS" }
+            log.trace { "parsing request for fields: ${MDCConstants.MDC_KEYS}" }
             val wrappedRequest = CachedBodyHttpServletRequest(request)
 
-            for (property in wrappedRequest::class.memberProperties) {
-                val name = property.name
-                val value = property.getter.call(wrappedRequest)
+            try {
+                // Read the JSON content from the request body
+                val inputStream = wrappedRequest.inputStream
+                val jsonContent = inputStream.readAllBytes()
 
-                // we need to be careful logging properties that might be sensitive in
-                // production. We should not log all the properties found.
+                if (jsonContent.isNotEmpty()) {
+                    val jsonNode: JsonNode = objectMapper.readTree(jsonContent)
 
-                if (name in MDCConstants.MDC_KEYS) {
-                    log.info { "Storing property in ThreadLocal: $name = $value" }
-                    ContextHolder.put(name, value.toString())
+                    // Extract interesting properties from the JSON
+                    for (key in MDCConstants.MDC_KEYS) {
+                        val jsonValue = jsonNode.get(key)
+                        if (jsonValue != null && !jsonValue.isNull) {
+                            val value = jsonValue.asText()
+                            log.info { "Storing property in ThreadLocal: $key = $value" }
+                            ContextHolder.put(key, value)
+                        }
+                    }
                 }
+            } catch (e: Exception) {
+                log.warn(e) { "Failed to parse JSON request body" }
             }
 
             chain.doFilter(wrappedRequest, response)

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "local-server": {
+      "command": "node",
+      "args": ["server.js"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
+

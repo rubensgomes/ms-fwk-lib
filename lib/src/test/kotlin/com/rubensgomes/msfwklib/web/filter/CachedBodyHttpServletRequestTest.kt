@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.filter
+package com.rubensgomes.msfwklib.web.filter
 
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServletRequest

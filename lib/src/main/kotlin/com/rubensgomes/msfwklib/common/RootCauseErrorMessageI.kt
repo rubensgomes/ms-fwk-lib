@@ -28,7 +28,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException
  *
  * @author Rubens Gomes
  */
-object RootCauseErrorMessage {
+object RootCauseErrorMessageI {
     /** A factory static method to resolve the root cause error message from the given exception. */
     fun create(ex: Throwable): String {
         log.debug("resolving root cause message from ex: {}", ex::class.simpleName)
@@ -61,5 +61,5 @@ object RootCauseErrorMessage {
         return buff.toString()
     }
 
-    private val log: Logger = LoggerFactory.getLogger(RootCauseErrorMessage::class.java)
+    private val log: Logger = LoggerFactory.getLogger(RootCauseErrorMessageI::class.java)
 }

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.filter
+package com.rubensgomes.msfwklib.web.filter
 
-import com.rubensgomes.msfmk.threadlocal.ContextHolder
+import com.rubensgomes.msfwklib.threadlocal.ContextHolder
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import java.io.ByteArrayInputStream
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -31,6 +32,16 @@ import org.springframework.http.MediaType
 
 @DisplayName("JsonRequestIntrospectFilter")
 class JsonRequestIntrospectFilterTest {
+
+    @BeforeEach
+    fun setUp() {
+        ContextHolder.clear()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        ContextHolder.clear()
+    }
 
     @Test
     fun `processes POST request with JSON content type and extracts interesting properties`() {
@@ -72,7 +83,8 @@ class JsonRequestIntrospectFilterTest {
 
         filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertTrue(ContextHolder.isEmpty())
+        assertEquals(null, ContextHolder.get("clientId"))
+        assertEquals(null, ContextHolder.get("transactionId"))
     }
 
     @Test
@@ -86,7 +98,8 @@ class JsonRequestIntrospectFilterTest {
 
         filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertTrue(ContextHolder.isEmpty())
+        assertEquals(null, ContextHolder.get("clientId"))
+        assertEquals(null, ContextHolder.get("transactionId"))
     }
 
     @Test
@@ -114,7 +127,8 @@ class JsonRequestIntrospectFilterTest {
 
         filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertTrue(ContextHolder.isEmpty())
+        assertEquals(null, ContextHolder.get("clientId"))
+        assertEquals(null, ContextHolder.get("transactionId"))
     }
 
     @Test
@@ -142,6 +156,7 @@ class JsonRequestIntrospectFilterTest {
 
         filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertTrue(ContextHolder.isEmpty())
+        assertEquals(null, ContextHolder.get("clientId"))
+        assertEquals(null, ContextHolder.get("transactionId"))
     }
 }

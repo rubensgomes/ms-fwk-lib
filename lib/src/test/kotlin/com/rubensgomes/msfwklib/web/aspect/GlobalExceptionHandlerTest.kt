@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.aspect
+package com.rubensgomes.msfwklib.web.aspect
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,7 +62,7 @@ class GlobalExceptionHandlerTest {
     fun `fails due to handleNotAcceptable`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.patch("/notAcceptable").accept(MediaType.APPLICATION_JSON)
+                MockMvcRequestBuilders.get("/notAcceptable").accept(MediaType.APPLICATION_JSON)
             )
             .andDo(print())
             .andExpect(status().isNotAcceptable)

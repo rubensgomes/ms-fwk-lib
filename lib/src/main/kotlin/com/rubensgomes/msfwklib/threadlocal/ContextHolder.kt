@@ -77,6 +77,7 @@ object ContextHolder {
         }
 
         map[key] = value
+        contextMap.set(map)
     }
 
     /**

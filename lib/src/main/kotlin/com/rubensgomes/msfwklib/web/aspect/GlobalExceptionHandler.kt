@@ -15,9 +15,9 @@
  */
 package com.rubensgomes.msfwklib.web.aspect
 
-import com.rubensgomes.msfwklib.common.RootCauseErrorMessage
-import com.rubensgomes.msreqresplib.dto.ApplicationErrorResponse
+import com.rubensgomes.msfwklib.common.RootCauseErrorMessageI
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.ValidationException
 import java.util.Locale
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -83,11 +83,10 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         log.trace("handleHandlerMethodValidation")
         logError(ex)
-        val errorResponse: ErrorResponse = ApplicationErrorResponse()
         return ResponseEntity.status(ex.statusCode)
             .header("Content-Language", Locale.ENGLISH.language)
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(errorResponse)
+            .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+            .body(ex)
     }
 
     /**
@@ -390,7 +389,7 @@ class GlobalExceptionHandler {
         response: HttpServletResponse,
     ): ResponseEntity<ErrorResponse> {
         log.trace("handleMethodNotAllowed")
-        response.setHeader(HttpHeaders.ALLOW, methods)
+        response.setHeader(HttpHeaders.ALLOW, "GET, POST, PUT, DELETE, PATCH, OPTIONS")
         logError(ex)
         return ResponseEntity.status(ex.statusCode)
             .header("Content-Language", Locale.ENGLISH.language)
@@ -412,7 +411,7 @@ class GlobalExceptionHandler {
         response: HttpServletResponse,
     ): ResponseEntity<ErrorResponse> {
         log.trace("handleHttpRequestMethodNotSupported")
-        response.setHeader(HttpHeaders.ALLOW, methods)
+        response.setHeader(HttpHeaders.ALLOW, "GET, POST, PUT, DELETE, PATCH, OPTIONS")
         logError(ex)
         return ResponseEntity.status(ex.statusCode)
             .header("Content-Language", Locale.ENGLISH.language)
@@ -592,20 +591,40 @@ class GlobalExceptionHandler {
             .body(ex)
     }
 
+    /**
+     * HTTP Status 400 - bad request (validation error)
+     *
+     * It complies with the RFC 9457 when returning an error response. For more information about
+     * RFC 9457 syntax, see [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html).
+     *
+     * @return [ResponseEntity] with an RFC 9457 [ErrorResponse] in the body.
+     */
+    @ExceptionHandler(value = [ValidationException::class])
+    fun handleValidation(ex: ValidationException): ResponseEntity<ErrorResponse> {
+        log.trace("handleValidation")
+        logError(ex)
+        val errorResponse = errorResponse(ex)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .header("Content-Language", Locale.ENGLISH.language)
+            .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+            .body(errorResponse)
+    }
+
     // default exception handler if none of previous exceptions handled.
     @ExceptionHandler(value = [Exception::class])
     fun handleException(ex: Exception): ResponseEntity<ErrorResponse> {
         log.trace("handleException")
-        log.warn("exception default handler for {} ${ex.message} : {}", ex.javaClass.name, ex)
+        log.warn("exception default handler for {} : {}", ex.javaClass.name, ex.message, ex)
         logError(ex)
-        val errorResponse = errorResponxe(ex)
+        val errorResponse = errorResponse(ex)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .header("Content-Language", Locale.ENGLISH.language)
             .contentType(MediaType.APPLICATION_PROBLEM_JSON)
             .body(errorResponse)
     }
 
-    private fun errorResponxe(ex: Exception): ErrorResponse = ServerErrorException(ex.message, ex)
+    private fun errorResponse(ex: Exception): ErrorResponse =
+        ServerErrorException(ex.message ?: "Unknown error", ex)
 
     internal companion object {
         private val log: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
@@ -613,7 +632,7 @@ class GlobalExceptionHandler {
 
     private fun logError(ex: Exception) {
         val errorMsg = ex.message
-        val errorNativeMsg = RootCauseErrorMessage.create(ex)
+        val errorNativeMsg = RootCauseErrorMessageI.create(ex)
         log.error("handle exception error [$errorMsg] and native error [$errorNativeMsg]", ex)
     }
 }

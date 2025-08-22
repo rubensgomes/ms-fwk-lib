@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfmk.web.aspect
+package com.rubensgomes.msfwklib.web.aspect
 
-import com.rubensgomes.reqresp.BaseResponse
+import com.rubensgomes.msreqresplib.BaseResponse
 import jakarta.validation.ValidationException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
