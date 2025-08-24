@@ -15,7 +15,7 @@
  */
 package com.rubensgomes.msfwklib.web.aspect
 
-import com.rubensgomes.msfwklib.common.RootCauseErrorMessageI
+import com.rubensgomes.msfwklib.common.RootErrorMessageResolver
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.ValidationException
 import java.util.Locale
@@ -632,7 +632,7 @@ class GlobalExceptionHandler {
 
     private fun logError(ex: Exception) {
         val errorMsg = ex.message
-        val errorNativeMsg = RootCauseErrorMessageI.create(ex)
+        val errorNativeMsg = RootErrorMessageResolver.resolveMessage(ex)
         log.error("handle exception error [$errorMsg] and native error [$errorNativeMsg]", ex)
     }
 }
