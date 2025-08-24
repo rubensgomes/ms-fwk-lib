@@ -48,6 +48,7 @@ private val log = KotlinLogging.logger {}
  * @see CachedBodyHttpServletRequest
  * @see ContextHolder
  * @author Rubens Gomes
+ * @since 0.0.1
  */
 @Component
 @WebFilter("/api/*")

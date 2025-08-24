@@ -34,6 +34,7 @@ import java.io.InputStreamReader
  * @param request The original HTTP servlet request to wrap and cache.
  * @constructor Wraps the given [HttpServletRequest] and caches its body.
  * @author Rubens Gomes
+ * @since 0.0.1
  */
 class CachedBodyHttpServletRequest(request: HttpServletRequest) :
     HttpServletRequestWrapper(request) {
