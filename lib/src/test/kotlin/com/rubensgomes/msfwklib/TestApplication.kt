@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfwklib.dto
+package com.rubensgomes.msfwklib
 
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Test
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 
-class ApplicationErrorResponseTest {
-    @Test
-    fun `should create ErrorResponse instance`() {
-        val applicationErrorResponse = ApplicationErrorResponse()
-        assertNotNull(applicationErrorResponse)
-    }
+/**
+ * Test Spring Boot application for integration tests.
+ *
+ * @author Rubens Gomes
+ */
+@SpringBootApplication class TestApplication
+
+fun main(args: Array<String>) {
+    runApplication<TestApplication>(*args)
 }

@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rubensgomes.msfwklib
+package com.rubensgomes.msfwklib.common
 
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.boot.SpringApplication
-import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest
-class MsFrameworkAppTest {
+class RootErrorMessageResolverTest {
+    private val obj = RootErrorMessageResolver
+
     @Test
-    fun `ensure spring context loads`() {
-        val context = SpringApplication.run(MsFrameworkApp::class.java)
-        assertNotNull(context)
+    fun `ensure root causes message matches expected message`() {
+        val expected = "hello world"
+        val ex = RuntimeException(expected)
+        val actual = obj.resolveMessage(ex)
+        assertEquals(expected, actual)
     }
 }

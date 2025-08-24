@@ -15,6 +15,7 @@
  */
 package com.rubensgomes.msfwklib.web.aspect
 
+import com.rubensgomes.msfwklib.TestApplication
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -27,7 +28,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 // requires @SpringBootTest to avoid:
 // HttpMediaTypeNotAcceptableException: No acceptable representation
-@SpringBootTest
+@SpringBootTest(classes = [TestApplication::class])
 @AutoConfigureMockMvc
 class GlobalExceptionHandlerTest {
     @Autowired private lateinit var mockMvc: MockMvc

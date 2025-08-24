@@ -54,5 +54,13 @@ git pull
 ./gradlew --info publish
 git checkout main
 ```
+
+## IntelliJ - GitHub Copilot `mcp.json`
+
+```bash
+# location of mcp.json
+cat ~/.config/github-copilot/intellij/mcp.json
+```
+
 ---
 Author:  [Rubens Gomes](https://rubensgomes.com/)

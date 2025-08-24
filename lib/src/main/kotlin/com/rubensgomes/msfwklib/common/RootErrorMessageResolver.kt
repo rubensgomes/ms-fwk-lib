@@ -15,12 +15,13 @@
  */
 package com.rubensgomes.msfwklib.common
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.exception.ExceptionUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.validation.BindException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
+
+private val log = KotlinLogging.logger {}
 
 /**
  * A static factory method to resolve the root cause error message from a given [Throwable]
@@ -28,10 +29,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException
  *
  * @author Rubens Gomes
  */
-object RootCauseErrorMessageI {
+object RootErrorMessageResolver {
     /** A factory static method to resolve the root cause error message from the given exception. */
-    fun create(ex: Throwable): String {
-        log.debug("resolving root cause message from ex: {}", ex::class.simpleName)
+    fun resolveMessage(ex: Throwable): String {
+        log.debug { "resolving root cause message from ex: $ex::class.simpleName" }
         val buff = StringBuffer()
 
         when (ex) {
@@ -60,6 +61,4 @@ object RootCauseErrorMessageI {
 
         return buff.toString()
     }
-
-    private val log: Logger = LoggerFactory.getLogger(RootCauseErrorMessageI::class.java)
 }
