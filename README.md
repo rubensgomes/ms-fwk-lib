@@ -62,5 +62,9 @@ git checkout main
 cat ~/.config/github-copilot/intellij/mcp.json
 ```
 
+## Features provided by this library
+
+
+
 ---
 Author:  [Rubens Gomes](https://rubensgomes.com/)

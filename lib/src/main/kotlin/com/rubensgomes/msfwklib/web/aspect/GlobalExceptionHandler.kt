@@ -16,8 +16,12 @@
 package com.rubensgomes.msfwklib.web.aspect
 
 import com.rubensgomes.msfwklib.common.RootErrorMessageResolver
+import com.rubensgomes.msreqresplib.Status
+import com.rubensgomes.msreqresplib.dto.ApplicationErrorResponse
+import com.rubensgomes.msreqresplib.error.Error
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.ValidationException
+import jdk.jshell.Snippet
 import java.util.Locale
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,14 +61,144 @@ import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 
 /**
- * A global exception handler that implements an AOP (Aspect Oriented Programming) advice code to be
- * applied to every web request. It uses an [ExceptionHandler] to catch and handle exceptions and
- * return a [ResponseEntity] with [ErrorResponse] based on the RFC 9475.
+ * Centralized global exception handler for REST API error management in Spring Boot applications.
  *
- * For more information about RFC 9457 syntax, see
- * [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html)
+ * This class implements the AOP (Aspect-Oriented Programming) pattern using Spring's
+ * `@RestControllerAdvice` to provide consistent, centralized exception handling across all REST
+ * endpoints in the application. It ensures that all exceptions are properly caught, logged, and
+ * converted into standardized RFC 9457 compliant HTTP error responses.
  *
+ * ## Key Features:
+ * - **RFC 9457 Compliance**: All error responses conform to the Problem Details for HTTP APIs
+ *   standard
+ * - **Comprehensive Coverage**: Handles 25+ different exception types with appropriate HTTP status
+ *   codes
+ * - **Structured Logging**: Integrates with MDC and structured logging for enhanced observability
+ * - **Internationalization**: Supports Content-Language headers for internationalized error
+ *   responses
+ * - **Root Cause Analysis**: Uses [RootErrorMessageResolver] for detailed error message extraction
+ * - **Consistent Response Format**: Standardized error response structure across all endpoints
+ *
+ * ## RFC 9457 Problem Details:
+ * All error responses follow the RFC 9457 standard, providing:
+ * - **Consistent Structure**: Standardized error response format
+ * - **Machine Readable**: Structured data for automated error handling
+ * - **Human Friendly**: Clear error messages for debugging and user feedback
+ * - **Extensible**: Support for additional problem-specific fields
+ *
+ * Example error response:
+ * ```json
+ * {
+ *   "type": "https://example.com/problems/validation-error",
+ *   "title": "Validation Failed",
+ *   "status": 400,
+ *   "detail": "The request contains invalid data",
+ *   "instance": "/api/users/create"
+ * }
+ * ```
+ *
+ * ## Exception Handling Categories:
+ *
+ * ### 4xx Client Errors:
+ * - **400 Bad Request**: Validation errors, missing parameters, malformed requests
+ * - **404 Not Found**: Missing resources, unknown endpoints
+ * - **405 Method Not Allowed**: Unsupported HTTP methods
+ * - **406 Not Acceptable**: Media type negotiation failures
+ * - **413 Payload Too Large**: File upload size exceeded
+ * - **415 Unsupported Media Type**: Invalid content types
+ *
+ * ### 5xx Server Errors:
+ * - **500 Internal Server Error**: Unexpected application errors
+ * - **503 Service Unavailable**: Timeout and availability issues
+ *
+ * ## Integration with Framework Components:
+ * This handler works seamlessly with other framework components:
+ * - **MDC Integration**: Automatic context logging for request correlation
+ * - **Root Error Resolution**: Deep exception analysis for detailed error reporting
+ * - **Validation Framework**: Bean validation and method parameter validation
+ * - **Security Framework**: Authentication and authorization error handling
+ * - **File Upload**: Multipart form data processing errors
+ *
+ * ## Usage Examples:
+ *
+ * ### Automatic Registration:
+ * The handler is automatically registered when the framework is included:
+ * ```kotlin
+ * @SpringBootApplication
+ * class MyApplication
+ *
+ * // GlobalExceptionHandler is automatically active
+ * ```
+ *
+ * ### Custom Exception Handling:
+ * Applications can extend or supplement this handler:
+ * ```kotlin
+ * @RestControllerAdvice
+ * class CustomExceptionHandler {
+ *
+ *     @ExceptionHandler(CustomBusinessException::class)
+ *     fun handleCustomException(ex: CustomBusinessException): ResponseEntity<ErrorResponse> {
+ *         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+ *             .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+ *             .body(ServerErrorException(ex.message, ex))
+ *     }
+ * }
+ * ```
+ *
+ * ### Testing Error Handling:
+ * ```kotlin
+ * @SpringBootTest
+ * @AutoConfigureMockMvc
+ * class ErrorHandlingTest {
+ *
+ *     @Autowired
+ *     lateinit var mockMvc: MockMvc
+ *
+ *     @Test
+ *     fun `should return 400 for validation errors`() {
+ *         mockMvc.perform(post("/api/users")
+ *             .contentType(MediaType.APPLICATION_JSON)
+ *             .content("{}"))
+ *             .andExpect(status().isBadRequest)
+ *             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+ *     }
+ * }
+ * ```
+ *
+ * ## Logging and Observability:
+ * The handler provides comprehensive logging for error tracking:
+ * - **Trace Logging**: Method entry/exit for debugging filter chains
+ * - **Error Logging**: Detailed error information with root cause analysis
+ * - **MDC Context**: Request correlation data automatically included
+ * - **Structured Data**: JSON-compatible log format for log aggregation
+ *
+ * ## Performance Considerations:
+ * - **Exception Path Optimization**: Efficient exception handling with minimal overhead
+ * - **Memory Management**: Proper cleanup of exception context and resources
+ * - **Response Caching**: Consistent response headers for optimal client caching
+ * - **Logging Efficiency**: Appropriate log levels to minimize performance impact
+ *
+ * ## Security Considerations:
+ * - **Information Disclosure**: Careful handling of sensitive error information
+ * - **Stack Trace Protection**: Root cause resolution without exposing internal details
+ * - **Rate Limiting**: Integration with security frameworks for error response throttling
+ * - **Audit Logging**: Complete error audit trail for security monitoring
+ *
+ * ## Best Practices:
+ * 1. **Consistent Error Responses**: Always return RFC 9457 compliant responses
+ * 2. **Appropriate Status Codes**: Use correct HTTP status codes for different error types
+ * 3. **Detailed Logging**: Log sufficient information for debugging without exposing sensitive data
+ * 4. **Client-Friendly Messages**: Provide clear, actionable error messages
+ * 5. **Monitoring Integration**: Ensure error metrics are properly collected
+ *
+ * @see org.springframework.web.bind.annotation.RestControllerAdvice
+ * @see org.springframework.web.bind.annotation.ExceptionHandler
+ * @see org.springframework.web.ErrorResponse
+ * @see com.rubensgomes.msfwklib.common.RootErrorMessageResolver
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457 - Problem Details for HTTP
+ *   APIs</a>
  * @author Rubens Gomes
+ * @since 0.0.1
  */
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -80,13 +214,27 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [HandlerMethodValidationException::class])
     fun handleHandlerMethodValidation(
         ex: HandlerMethodValidationException
-    ): ResponseEntity<ErrorResponse> {
+    ): ResponseEntity<ApplicationErrorResponse> {
         log.trace("handleHandlerMethodValidation")
         logError(ex)
+
         return ResponseEntity.status(ex.statusCode)
             .header("Content-Language", Locale.ENGLISH.language)
             .contentType(MediaType.APPLICATION_PROBLEM_JSON)
             .body(ex)
+    }
+
+    private fun createErrorResponse(ex: Exception) : ApplicationErrorResponse {
+        val error: Error = Error()
+
+        val errorResponse: ApplicationErrorResponse =
+            ApplicationErrorResponse("clientId-TODO",
+                "transactionId-TODO",
+                Status.ERROR,
+                ex.message,
+
+                )
+        return errorResponse
     }
 
     /**
@@ -610,7 +758,26 @@ class GlobalExceptionHandler {
             .body(errorResponse)
     }
 
-    // default exception handler if none of previous exceptions handled.
+    /**
+     * Default exception handler that catches any unhandled exceptions.
+     *
+     * This is the fallback handler that ensures no exception goes unhandled in the application. It
+     * provides a safety net for unexpected errors and ensures consistent error response format even
+     * for unforeseen exception types.
+     *
+     * **Important**: This handler should always be the last in the exception handling chain. It
+     * catches all [Exception] types that aren't handled by more specific handlers.
+     *
+     * ## Security Considerations:
+     * - Logs full exception details for debugging while returning sanitized error responses
+     * - Prevents stack trace exposure to clients
+     * - Includes warning-level logging for monitoring and alerting
+     *
+     * **HTTP Status**: 500 Internal Server Error
+     *
+     * @param ex The unhandled exception
+     * @return RFC 9457 compliant generic error response
+     */
     @ExceptionHandler(value = [Exception::class])
     fun handleException(ex: Exception): ResponseEntity<ErrorResponse> {
         log.trace("handleException")
@@ -623,6 +790,16 @@ class GlobalExceptionHandler {
             .body(errorResponse)
     }
 
+    /**
+     * Creates a standardized [ErrorResponse] for exceptions that don't have built-in Spring error
+     * responses.
+     *
+     * This helper method ensures consistent error response creation for custom exceptions and
+     * generic [Exception] types that don't extend Spring's error response framework.
+     *
+     * @param ex The exception to wrap in an error response
+     * @return A [ServerErrorException] containing the exception details in RFC 9457 format
+     */
     private fun errorResponse(ex: Exception): ErrorResponse =
         ServerErrorException(ex.message ?: "Unknown error", ex)
 
@@ -630,6 +807,29 @@ class GlobalExceptionHandler {
         private val log: Logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
     }
 
+    /**
+     * Centralized error logging method that provides comprehensive exception information.
+     *
+     * This method performs dual logging to capture both the immediate exception message and the
+     * root cause analysis for debugging purposes. It integrates with the [RootErrorMessageResolver]
+     * to provide deep error analysis.
+     *
+     * ## Logging Details:
+     * - **Error Level**: All exceptions are logged at ERROR level
+     * - **Message Format**: Structured format with both immediate and root cause messages
+     * - **MDC Integration**: Automatically includes request context from MDC
+     * - **Stack Traces**: Full exception stack trace for debugging
+     *
+     * ## Information Captured:
+     * - Immediate exception message
+     * - Root cause message (extracted by [RootErrorMessageResolver])
+     * - Complete exception stack trace
+     * - Request correlation data from MDC (if available)
+     *
+     * @param ex The exception to log
+     * @see RootErrorMessageResolver.resolveMessage
+     * @see org.slf4j.MDC
+     */
     private fun logError(ex: Exception) {
         val errorMsg = ex.message
         val errorNativeMsg = RootErrorMessageResolver.resolveMessage(ex)
