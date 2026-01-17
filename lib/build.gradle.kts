@@ -77,6 +77,8 @@ dependencies {
 
     // ########## testImplementation #############################################
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+
     testImplementation(libs.springmockk)
 }
 
@@ -104,6 +106,7 @@ java {
     withJavadocJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
+        vendor.set(JvmVendorSpec.AMAZON)
     }
 }
 
