@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -70,64 +70,64 @@ private val log = KotlinLogging.logger {}
  */
 object RootErrorMessageResolver {
 
-    /**
-     * Resolves and extracts a meaningful error message from the given exception.
-     *
-     * This method analyzes the provided exception and extracts error messages based on the
-     * exception type:
-     *
-     * **For [BindException]:**
-     * - Iterates through all field errors
-     * - Concatenates default error messages with newline separators
-     * - Returns formatted validation error messages
-     *
-     * **For [MethodArgumentNotValidException]:**
-     * - Extracts detailed validation information including field names and rejected values
-     * - Formats each error with field name, rejected value, and error message
-     * - Provides comprehensive validation failure details
-     *
-     * **For other [Throwable] types:**
-     * - Uses Apache Commons Lang [ExceptionUtils.getRootCause] to find the root cause
-     * - Returns the message from the deepest cause in the exception chain
-     * - Handles nested exceptions by unwrapping to the original cause
-     *
-     * @param ex The exception from which to extract the error message. Must not be null.
-     * @return A formatted error message string. For validation exceptions, may contain multiple
-     *   lines with detailed field information. For generic exceptions, returns the root cause
-     *   message. Never returns null, but may return an empty string if no message is available.
-     * @throws IllegalArgumentException if the provided exception is null (implicitly handled by
-     *   Kotlin)
-     * @see org.apache.commons.lang3.exception.ExceptionUtils.getRootCause
-     * @see org.springframework.validation.FieldError.getDefaultMessage
-     */
-    fun resolveMessage(ex: Throwable): String {
-        log.debug { "resolving root cause message from ex: ${ex::class.simpleName}" }
-        val buff = StringBuffer()
+  /**
+   * Resolves and extracts a meaningful error message from the given exception.
+   *
+   * This method analyzes the provided exception and extracts error messages based on the exception
+   * type:
+   *
+   * **For [BindException]:**
+   * - Iterates through all field errors
+   * - Concatenates default error messages with newline separators
+   * - Returns formatted validation error messages
+   *
+   * **For [MethodArgumentNotValidException]:**
+   * - Extracts detailed validation information including field names and rejected values
+   * - Formats each error with field name, rejected value, and error message
+   * - Provides comprehensive validation failure details
+   *
+   * **For other [Throwable] types:**
+   * - Uses Apache Commons Lang [ExceptionUtils.getRootCause] to find the root cause
+   * - Returns the message from the deepest cause in the exception chain
+   * - Handles nested exceptions by unwrapping to the original cause
+   *
+   * @param ex The exception from which to extract the error message. Must not be null.
+   * @return A formatted error message string. For validation exceptions, may contain multiple lines
+   *   with detailed field information. For generic exceptions, returns the root cause message.
+   *   Never returns null, but may return an empty string if no message is available.
+   * @throws IllegalArgumentException if the provided exception is null (implicitly handled by
+   *   Kotlin)
+   * @see org.apache.commons.lang3.exception.ExceptionUtils.getRootCause
+   * @see org.springframework.validation.FieldError.getDefaultMessage
+   */
+  fun resolveMessage(ex: Throwable): String {
+    log.debug { "resolving root cause message from ex: ${ex::class.simpleName}" }
+    val buff = StringBuffer()
 
-        when (ex) {
-            is BindException -> {
-                for (field in ex.fieldErrors) {
-                    buff.append(field.defaultMessage).append("\n")
-                }
-            }
-
-            is MethodArgumentNotValidException -> {
-                for (error in ex.bindingResult.allErrors) {
-                    if (error is FieldError) {
-                        buff.append("Field [").append(error.field).append("]\n")
-                        buff.append("Value [").append(error.rejectedValue).append("]\n")
-                    }
-
-                    buff.append(error.defaultMessage).append("\n")
-                }
-            }
-
-            else -> {
-                val rootCause = ExceptionUtils.getRootCause(ex)
-                buff.append(rootCause.message)
-            }
+    when (ex) {
+      is BindException -> {
+        for (field in ex.fieldErrors) {
+          buff.append(field.defaultMessage).append("\n")
         }
+      }
 
-        return buff.toString()
+      is MethodArgumentNotValidException -> {
+        for (error in ex.bindingResult.allErrors) {
+          if (error is FieldError) {
+            buff.append("Field [").append(error.field).append("]\n")
+            buff.append("Value [").append(error.rejectedValue).append("]\n")
+          }
+
+          buff.append(error.defaultMessage).append("\n")
+        }
+      }
+
+      else -> {
+        val rootCause = ExceptionUtils.getRootCause(ex)
+        buff.append(rootCause.message)
+      }
     }
+
+    return buff.toString()
+  }
 }

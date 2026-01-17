@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -28,13 +28,13 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner
 @TestConfiguration
 @EnableConfigurationProperties(*[WebProperties::class])
 class WebPropertiesConfiguration {
-    init {
-        log.trace("init called.")
-    }
+  init {
+    log.trace("init called.")
+  }
 
-    internal companion object {
-        private val log = LoggerFactory.getLogger(WebPropertiesConfiguration::class.java)
-    }
+  internal companion object {
+    private val log = LoggerFactory.getLogger(WebPropertiesConfiguration::class.java)
+  }
 }
 
 /**
@@ -47,58 +47,57 @@ class WebPropertiesConfiguration {
  * @author Rubens Gomes
  */
 class WebPropertiesConfigurationPropertiesTest {
-    // I had issues when I tried to initialize the contextRunner in a
-    // @BeforeTest method. The second test was failing with null for the
-    // startUpFailure. This is an indication that the ApplicationContextRunner
-    // is making use of class static data.
-    // -- Rubens Gomes (08/16/2024)
+  // I had issues when I tried to initialize the contextRunner in a
+  // @BeforeTest method. The second test was failing with null for the
+  // startUpFailure. This is an indication that the ApplicationContextRunner
+  // is making use of class static data.
+  // -- Rubens Gomes (08/16/2024)
 
-    @Test
-    fun `ensure success when app web property allowed-methods is valid`() {
-        val contextRunner = ApplicationContextRunner()
-        contextRunner
-            // triggers loading spring configuration file (e.g., application.yml)
-            .withInitializer(ConfigDataApplicationContextInitializer())
-            .withUserConfiguration(WebPropertiesConfiguration::class.java)
-            // configure location of spring configuration file. same as:
-            // @TestPropertySource(properties =
-            // ["spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE"])
-            .withPropertyValues("spring.config.location=$VALID_METHODS_ALLOWED_CONFIG_FILE")
-            .run { consumer -> assertNull(consumer.startupFailure) }
-    }
+  @Test
+  fun `ensure success when app web property allowed-methods is valid`() {
+    val contextRunner = ApplicationContextRunner()
+    contextRunner
+        // triggers loading spring configuration file (e.g., application.yml)
+        .withInitializer(ConfigDataApplicationContextInitializer())
+        .withUserConfiguration(WebPropertiesConfiguration::class.java)
+        // configure location of spring configuration file. same as:
+        // @TestPropertySource(properties =
+        // ["spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE"])
+        .withPropertyValues("spring.config.location=$VALID_METHODS_ALLOWED_CONFIG_FILE")
+        .run { consumer -> assertNull(consumer.startupFailure) }
+  }
 
-    @Test
-    fun `fail due to missing app web property allowed-methods`() {
-        val contextRunner = ApplicationContextRunner()
-        contextRunner
-            // triggers loading spring configuration file (e.g., application.yml)
-            .withInitializer(ConfigDataApplicationContextInitializer())
-            .withUserConfiguration(WebPropertiesConfiguration::class.java)
-            // configure location of spring configuration file. same as:
-            // @TestPropertySource(properties =
-            // ["spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE"])
-            .withPropertyValues("spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE")
-            .run { consumer -> assertNotNull(consumer.startupFailure) }
-    }
+  @Test
+  fun `fail due to missing app web property allowed-methods`() {
+    val contextRunner = ApplicationContextRunner()
+    contextRunner
+        // triggers loading spring configuration file (e.g., application.yml)
+        .withInitializer(ConfigDataApplicationContextInitializer())
+        .withUserConfiguration(WebPropertiesConfiguration::class.java)
+        // configure location of spring configuration file. same as:
+        // @TestPropertySource(properties =
+        // ["spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE"])
+        .withPropertyValues("spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE")
+        .run { consumer -> assertNotNull(consumer.startupFailure) }
+  }
 
-    @Test
-    fun `fail due to invalid app web property allowed-methods`() {
-        val contextRunner = ApplicationContextRunner()
-        contextRunner
-            // triggers loading spring configuration file (e.g., application.yml)
-            .withInitializer(ConfigDataApplicationContextInitializer())
-            .withUserConfiguration(WebPropertiesConfiguration::class.java)
-            // configure location of spring configuration file. same as:
-            // @TestPropertySource(properties =
-            // ["spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE"])
-            .withPropertyValues("spring.config.location=$INVALID_METHODS_ALLOWED_CONFIG_FILE")
-            .run { consumer -> assertNotNull(consumer.startupFailure) }
-    }
+  @Test
+  fun `fail due to invalid app web property allowed-methods`() {
+    val contextRunner = ApplicationContextRunner()
+    contextRunner
+        // triggers loading spring configuration file (e.g., application.yml)
+        .withInitializer(ConfigDataApplicationContextInitializer())
+        .withUserConfiguration(WebPropertiesConfiguration::class.java)
+        // configure location of spring configuration file. same as:
+        // @TestPropertySource(properties =
+        // ["spring.config.location=$EMPTY_METHODS_ALLOWED_CONFIG_FILE"])
+        .withPropertyValues("spring.config.location=$INVALID_METHODS_ALLOWED_CONFIG_FILE")
+        .run { consumer -> assertNotNull(consumer.startupFailure) }
+  }
 
-    internal companion object {
-        private const val EMPTY_METHODS_ALLOWED_CONFIG_FILE = "classpath:methods-allowed/empty.yml"
-        private const val INVALID_METHODS_ALLOWED_CONFIG_FILE =
-            "classpath:methods-allowed/invalid.yml"
-        private const val VALID_METHODS_ALLOWED_CONFIG_FILE = "classpath:methods-allowed/valid.yml"
-    }
+  internal companion object {
+    private const val EMPTY_METHODS_ALLOWED_CONFIG_FILE = "classpath:methods-allowed/empty.yml"
+    private const val INVALID_METHODS_ALLOWED_CONFIG_FILE = "classpath:methods-allowed/invalid.yml"
+    private const val VALID_METHODS_ALLOWED_CONFIG_FILE = "classpath:methods-allowed/valid.yml"
+  }
 }

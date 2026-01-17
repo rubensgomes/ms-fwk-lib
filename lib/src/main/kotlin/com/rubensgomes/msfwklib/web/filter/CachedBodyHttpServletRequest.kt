@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -38,23 +38,23 @@ import java.io.InputStreamReader
  */
 class CachedBodyHttpServletRequest(request: HttpServletRequest) :
     HttpServletRequestWrapper(request) {
-    /** Cached copy of the request body as a byte array. */
-    private val cachedBody: ByteArray = request.inputStream.readAllBytes()
+  /** Cached copy of the request body as a byte array. */
+  private val cachedBody: ByteArray = request.inputStream.readAllBytes()
 
-    /** Returns a [ServletInputStream] that reads from the cached request body. */
-    override fun getInputStream(): ServletInputStream {
-        val byteArrayInputStream = ByteArrayInputStream(cachedBody)
-        return object : ServletInputStream() {
-            override fun read(): Int = byteArrayInputStream.read()
+  /** Returns a [ServletInputStream] that reads from the cached request body. */
+  override fun getInputStream(): ServletInputStream {
+    val byteArrayInputStream = ByteArrayInputStream(cachedBody)
+    return object : ServletInputStream() {
+      override fun read(): Int = byteArrayInputStream.read()
 
-            override fun isFinished(): Boolean = byteArrayInputStream.available() == 0
+      override fun isFinished(): Boolean = byteArrayInputStream.available() == 0
 
-            override fun isReady(): Boolean = true
+      override fun isReady(): Boolean = true
 
-            override fun setReadListener(readListener: ReadListener?) {}
-        }
+      override fun setReadListener(readListener: ReadListener?) {}
     }
+  }
 
-    /** Returns a [BufferedReader] that reads from the cached request body. */
-    override fun getReader(): BufferedReader = BufferedReader(InputStreamReader(this.inputStream))
+  /** Returns a [BufferedReader] that reads from the cached request body. */
+  override fun getReader(): BufferedReader = BufferedReader(InputStreamReader(this.inputStream))
 }

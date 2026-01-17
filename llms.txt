@@ -1,0 +1,57 @@
+# ms-fwk-lib
+
+> A Spring Boot infrastructure framework library for microservices
+
+## Overview
+
+ms-fwk-lib is a Kotlin library providing common infrastructure components for Spring Boot microservices, including web filters, exception handling, MDC (Mapped Diagnostic Context) utilities, and configuration components.
+
+## Tech Stack
+
+- Language: Kotlin
+- Framework: Spring Boot 4.x
+- Build: Gradle 9.1.0 (Kotlin DSL)
+- Java: 25
+- Testing: JUnit 5, SpringMockK
+
+## Quick Start
+
+```bash
+./gradlew build    # Build the project
+./gradlew test     # Run tests
+./gradlew clean    # Clean build artifacts
+```
+
+## Project Structure
+
+- /lib - Main library module
+- /lib/src/main/kotlin/com/rubensgomes/msfwklib/common - Constants and utilities
+- /lib/src/main/kotlin/com/rubensgomes/msfwklib/config - Spring configurations
+- /lib/src/main/kotlin/com/rubensgomes/msfwklib/threadlocal - Thread-local context utilities
+- /lib/src/main/kotlin/com/rubensgomes/msfwklib/web/aspect - AOP components (exception handling)
+- /lib/src/main/kotlin/com/rubensgomes/msfwklib/web/filter - Servlet filters
+- /lib/src/test/kotlin - Unit tests
+
+## Key Components
+
+- GlobalExceptionHandler: Centralized exception handling for REST APIs
+- MDCClearFilter: Clears MDC context after request processing
+- JsonRequestIntrospectFilter: Introspects JSON request bodies
+- CachedBodyHttpServletRequest: Wrapper for re-readable request bodies
+- ContextHolder: Thread-local context management
+- MDCConstants: Standard MDC key constants
+
+## Configuration
+
+- lib/gradle.properties: Module version and artifact settings
+- gradle.properties: Developer info and repository URLs
+- settings.gradle.kts: Version catalog configuration
+
+## Publishing
+
+Published to GitHub Packages: https://maven.pkg.github.com/rubensgomes/jvm-libs
+
+## Links
+
+- Repository: https://github.com/rubensgomes/ms-fwk-lib
+- Author: Rubens Gomes (https://rubensgomes.com/)

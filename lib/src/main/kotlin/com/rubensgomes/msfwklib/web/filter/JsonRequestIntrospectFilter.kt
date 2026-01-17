@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -54,57 +54,56 @@ private val log = KotlinLogging.logger {}
 @WebFilter("/api/*")
 class JsonRequestIntrospectFilter : Filter {
 
-    private val objectMapper = ObjectMapper()
+  private val objectMapper = ObjectMapper()
 
-    /**
-     * Filters incoming requests to extract and store interesting properties from JSON request
-     * bodies.
-     *
-     * This method checks if the request is a POST request with JSON content type, and if so, wraps
-     * it in a [CachedBodyHttpServletRequest] to allow multiple reads of the request body. It then
-     * parses the JSON content to extract properties matching the [MDCConstants.MDC_KEYS] set and
-     * stores them in the [ContextHolder] for thread-local access.
-     *
-     * @param request the servlet request to be processed
-     * @param response the servlet response to be returned
-     * @param chain the filter chain to continue processing the request
-     */
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        log.trace { "entering filter" }
+  /**
+   * Filters incoming requests to extract and store interesting properties from JSON request bodies.
+   *
+   * This method checks if the request is a POST request with JSON content type, and if so, wraps it
+   * in a [CachedBodyHttpServletRequest] to allow multiple reads of the request body. It then parses
+   * the JSON content to extract properties matching the [MDCConstants.MDC_KEYS] set and stores them
+   * in the [ContextHolder] for thread-local access.
+   *
+   * @param request the servlet request to be processed
+   * @param response the servlet response to be returned
+   * @param chain the filter chain to continue processing the request
+   */
+  override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    log.trace { "entering filter" }
 
-        if (
-            request is HttpServletRequest &&
-                request.method == "POST" &&
-                request.contentType?.contains(MediaType.APPLICATION_JSON_VALUE) == true
-        ) {
-            log.trace { "parsing request for fields: ${MDCConstants.MDC_KEYS}" }
-            val wrappedRequest = CachedBodyHttpServletRequest(request)
+    if (
+        request is HttpServletRequest &&
+            request.method == "POST" &&
+            request.contentType?.contains(MediaType.APPLICATION_JSON_VALUE) == true
+    ) {
+      log.trace { "parsing request for fields: ${MDCConstants.MDC_KEYS}" }
+      val wrappedRequest = CachedBodyHttpServletRequest(request)
 
-            try {
-                // Read the JSON content from the request body
-                val inputStream = wrappedRequest.inputStream
-                val jsonContent = inputStream.readAllBytes()
+      try {
+        // Read the JSON content from the request body
+        val inputStream = wrappedRequest.inputStream
+        val jsonContent = inputStream.readAllBytes()
 
-                if (jsonContent.isNotEmpty()) {
-                    val jsonNode: JsonNode = objectMapper.readTree(jsonContent)
+        if (jsonContent.isNotEmpty()) {
+          val jsonNode: JsonNode = objectMapper.readTree(jsonContent)
 
-                    // Extract interesting properties from the JSON
-                    for (key in MDCConstants.MDC_KEYS) {
-                        val jsonValue = jsonNode.get(key)
-                        if (jsonValue != null && !jsonValue.isNull) {
-                            val value = jsonValue.asText()
-                            log.info { "Storing property in ThreadLocal: $key = $value" }
-                            ContextHolder.put(key, value)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                log.warn(e) { "Failed to parse JSON request body" }
+          // Extract interesting properties from the JSON
+          for (key in MDCConstants.MDC_KEYS) {
+            val jsonValue = jsonNode.get(key)
+            if (jsonValue != null && !jsonValue.isNull) {
+              val value = jsonValue.asText()
+              log.info { "Storing property in ThreadLocal: $key = $value" }
+              ContextHolder.put(key, value)
             }
-
-            chain.doFilter(wrappedRequest, response)
-        } else {
-            chain.doFilter(request, response)
+          }
         }
+      } catch (e: Exception) {
+        log.warn(e) { "Failed to parse JSON request body" }
+      }
+
+      chain.doFilter(wrappedRequest, response)
+    } else {
+      chain.doFilter(request, response)
     }
+  }
 }

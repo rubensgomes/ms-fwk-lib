@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -38,64 +38,64 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAd
  */
 @ControllerAdvice
 class RequestBodyMDCUpdateAdvice : RequestBodyAdviceAdapter() {
-    override fun supports(
-        methodParameter: MethodParameter,
-        targetType: Type,
-        converterType: Class<out HttpMessageConverter<*>>,
-    ): Boolean {
-        log.trace(
-            "Incoming request [{}] type [{}] being processed",
-            methodParameter.method,
-            targetType.typeName,
-        )
-        return true
-    }
+  override fun supports(
+      methodParameter: MethodParameter,
+      targetType: Type,
+      converterType: Class<out HttpMessageConverter<*>>,
+  ): Boolean {
+    log.trace(
+        "Incoming request [{}] type [{}] being processed",
+        methodParameter.method,
+        targetType.typeName,
+    )
+    return true
+  }
 
-    override fun afterBodyRead(
-        body: Any,
-        inputMessage: HttpInputMessage,
-        parameter: MethodParameter,
-        targetType: Type,
-        converterType: Class<out HttpMessageConverter<*>>,
-    ): Any {
-        log.trace("updating MDC context.")
+  override fun afterBodyRead(
+      body: Any,
+      inputMessage: HttpInputMessage,
+      parameter: MethodParameter,
+      targetType: Type,
+      converterType: Class<out HttpMessageConverter<*>>,
+  ): Any {
+    log.trace("updating MDC context.")
 
-        // ---------- >>> Kotlin Reflection <<< --------------------------------
+    // ---------- >>> Kotlin Reflection <<< --------------------------------
 
-        val clazz = body::class
-        val properties = clazz.memberProperties
+    val clazz = body::class
+    val properties = clazz.memberProperties
 
-        for (key in MDCConstants.MDC_KEYS) {
-            log.debug("searching for {} in request body class {}", key, clazz.simpleName)
+    for (key in MDCConstants.MDC_KEYS) {
+      log.debug("searching for {} in request body class {}", key, clazz.simpleName)
 
-            try {
-                // find first entry value corresponding to key in body object.
-                val value =
-                    properties
-                        .first { it.name == key }
-                        .also { it.isAccessible = true }
-                        .let { it as KProperty1<in Any, *> }
-                        .getter(body)
+      try {
+        // find first entry value corresponding to key in body object.
+        val value =
+            properties
+                .first { it.name == key }
+                .also { it.isAccessible = true }
+                .let { it as KProperty1<in Any, *> }
+                .getter(body)
 
-                if (value.toString().isNotBlank()) {
-                    log.debug(
-                        "updating MDC with non-blank value for MDC key: {} = {}",
-                        key,
-                        value.toString(),
-                    )
-                    MDC.put(key, value.toString())
-                } else {
-                    log.warn("value for MDC key: {} = {} is blank", key, value)
-                }
-            } catch (e: NoSuchElementException) {
-                log.debug("no matching key {} : {}", key, e.message)
-            }
+        if (value.toString().isNotBlank()) {
+          log.debug(
+              "updating MDC with non-blank value for MDC key: {} = {}",
+              key,
+              value.toString(),
+          )
+          MDC.put(key, value.toString())
+        } else {
+          log.warn("value for MDC key: {} = {} is blank", key, value)
         }
-
-        return body
+      } catch (e: NoSuchElementException) {
+        log.debug("no matching key {} : {}", key, e.message)
+      }
     }
 
-    internal companion object {
-        private val log: Logger = LoggerFactory.getLogger(RequestBodyMDCUpdateAdvice::class.java)
-    }
+    return body
+  }
+
+  internal companion object {
+    private val log: Logger = LoggerFactory.getLogger(RequestBodyMDCUpdateAdvice::class.java)
+  }
 }

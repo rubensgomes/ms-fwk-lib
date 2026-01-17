@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -42,64 +42,64 @@ data class MDCData(val clientId: String, val transactionId: String)
 data class NonMDCData(val something: String)
 
 class RequestBodyMDCUpdateAdviceTest {
-    private val advice = RequestBodyMDCUpdateAdvice()
+  private val advice = RequestBodyMDCUpdateAdvice()
 
-    @BeforeEach
-    fun setUp() {
-        MDC.clear()
-    }
+  @BeforeEach
+  fun setUp() {
+    MDC.clear()
+  }
 
-    @Test
-    fun `ensure MDC is updated using MDCData`() {
-        val data = MDCData("123", "")
-        val inputMessage = mockk<HttpInputMessage>()
-        val parameter = mockk<MethodParameter>()
-        val targetType = mockk<Type>()
+  @Test
+  fun `ensure MDC is updated using MDCData`() {
+    val data = MDCData("123", "")
+    val inputMessage = mockk<HttpInputMessage>()
+    val parameter = mockk<MethodParameter>()
+    val targetType = mockk<Type>()
 
-        advice.afterBodyRead(
-            data,
-            inputMessage,
-            parameter,
-            targetType,
-            StringHttpMessageConverter::class.java,
-        )
+    advice.afterBodyRead(
+        data,
+        inputMessage,
+        parameter,
+        targetType,
+        StringHttpMessageConverter::class.java,
+    )
 
-        assertEquals(data.clientId, MDC.get(MDCConstants.CLIENT_ID_KEY))
-    }
+    assertEquals(data.clientId, MDC.get(MDCConstants.CLIENT_ID_KEY))
+  }
 
-    @Test
-    fun `ensure MDC is NOT updated when MDC fields found are blnak`() {
-        val data = MDCData(" ", " ")
-        val inputMessage = mockk<HttpInputMessage>()
-        val parameter = mockk<MethodParameter>()
-        val targetType = mockk<Type>()
+  @Test
+  fun `ensure MDC is NOT updated when MDC fields found are blnak`() {
+    val data = MDCData(" ", " ")
+    val inputMessage = mockk<HttpInputMessage>()
+    val parameter = mockk<MethodParameter>()
+    val targetType = mockk<Type>()
 
-        advice.afterBodyRead(
-            data,
-            inputMessage,
-            parameter,
-            targetType,
-            StringHttpMessageConverter::class.java,
-        )
+    advice.afterBodyRead(
+        data,
+        inputMessage,
+        parameter,
+        targetType,
+        StringHttpMessageConverter::class.java,
+    )
 
-        assertTrue(MDC.getMDCAdapter().copyOfContextMap.isNullOrEmpty())
-    }
+    assertTrue(MDC.getMDCAdapter().copyOfContextMap.isNullOrEmpty())
+  }
 
-    @Test
-    fun `ensure MDC is NOT updated when MDC fields not found in object`() {
-        val data = NonMDCData("hello")
-        val inputMessage = mockk<HttpInputMessage>()
-        val parameter = mockk<MethodParameter>()
-        val targetType = mockk<Type>()
+  @Test
+  fun `ensure MDC is NOT updated when MDC fields not found in object`() {
+    val data = NonMDCData("hello")
+    val inputMessage = mockk<HttpInputMessage>()
+    val parameter = mockk<MethodParameter>()
+    val targetType = mockk<Type>()
 
-        advice.afterBodyRead(
-            data,
-            inputMessage,
-            parameter,
-            targetType,
-            StringHttpMessageConverter::class.java,
-        )
+    advice.afterBodyRead(
+        data,
+        inputMessage,
+        parameter,
+        targetType,
+        StringHttpMessageConverter::class.java,
+    )
 
-        assertTrue(MDC.getMDCAdapter().copyOfContextMap.isNullOrEmpty())
-    }
+    assertTrue(MDC.getMDCAdapter().copyOfContextMap.isNullOrEmpty())
+  }
 }

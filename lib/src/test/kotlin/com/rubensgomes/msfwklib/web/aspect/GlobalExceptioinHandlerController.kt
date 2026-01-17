@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -34,47 +34,47 @@ import org.springframework.web.servlet.NoHandlerFoundException
  */
 @RestController
 class GlobalExceptioinHandlerController {
-    @RequestMapping(
-        value = ["/badrequest"],
-        method = [RequestMethod.GET],
-        consumes = [MediaType.ALL_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun badrequest(): ResponseEntity<BaseResponse> {
-        val ex = ValidationException("badrequest")
-        throw ex
-    }
+  @RequestMapping(
+      value = ["/badrequest"],
+      method = [RequestMethod.GET],
+      consumes = [MediaType.ALL_VALUE],
+      produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun badrequest(): ResponseEntity<BaseResponse> {
+    val ex = ValidationException("badrequest")
+    throw ex
+  }
 
-    @RequestMapping(
-        value = ["/notfound"],
-        method = [RequestMethod.GET],
-        consumes = [MediaType.ALL_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun notfound(): ResponseEntity<BaseResponse> {
-        val httpMethod = "CONNECT"
-        val requestURL = "http://localhost:8080/notfound"
-        val httpHeaders = HttpHeaders()
-        throw NoHandlerFoundException(httpMethod, requestURL, httpHeaders)
-    }
+  @RequestMapping(
+      value = ["/notfound"],
+      method = [RequestMethod.GET],
+      consumes = [MediaType.ALL_VALUE],
+      produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun notfound(): ResponseEntity<BaseResponse> {
+    val httpMethod = "CONNECT"
+    val requestURL = "http://localhost:8080/notfound"
+    val httpHeaders = HttpHeaders()
+    throw NoHandlerFoundException(httpMethod, requestURL, httpHeaders)
+  }
 
-    @RequestMapping(
-        value = ["/methodNotAllowed"],
-        method = [RequestMethod.GET],
-        consumes = [MediaType.ALL_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun methodNotAllowed(): ResponseEntity<BaseResponse> {
-        val httpMethod = "CONNECT"
-        throw HttpRequestMethodNotSupportedException(httpMethod)
-    }
+  @RequestMapping(
+      value = ["/methodNotAllowed"],
+      method = [RequestMethod.GET],
+      consumes = [MediaType.ALL_VALUE],
+      produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun methodNotAllowed(): ResponseEntity<BaseResponse> {
+    val httpMethod = "CONNECT"
+    throw HttpRequestMethodNotSupportedException(httpMethod)
+  }
 
-    @RequestMapping(
-        value = ["/notAcceptable"],
-        method = [RequestMethod.GET],
-        consumes = [MediaType.ALL_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-    )
-    fun notAcceptable(): ResponseEntity<BaseResponse> =
-        throw HttpMediaTypeNotAcceptableException("media type not acceptable")
+  @RequestMapping(
+      value = ["/notAcceptable"],
+      method = [RequestMethod.GET],
+      consumes = [MediaType.ALL_VALUE],
+      produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun notAcceptable(): ResponseEntity<BaseResponse> =
+      throw HttpMediaTypeNotAcceptableException("media type not acceptable")
 }

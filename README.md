@@ -2,64 +2,90 @@
 
 A Spring Boot infra-structure framework library for microservices.
 
-## Display Java Tools Installed
+## AI General Disclaimer
 
-```shell
+For **AI-GENERATED CONTENT**, please refer to [DISCLAIMER](DISCLAIMER.md)
+
+## Branching Strategy
+
+The project is using two branches:
+
+1. **_main_**: which is used as the Trunk-Based Development (TBD) with tagging
+   for new releases.
+2. **_release_**: which contains the most recently released code. That is, every
+   time a release is made, this branch is updated.
+
+## CICD Automation
+
+The CI/CD build pipeline is using the GitHub Workflow Actions. The built
+artifact package is deployed to the following GitHub Package:
+
+- https://maven.pkg.github.com/rubensgomes/jvm-libs
+
+## Basic Commands
+
+- Display Java Tools Installed
+
+```bash
 ./gradlew -q javaToolchains
 ```
 
-## Clean, Build, Test, Assemble, Publish, Release
+- Update the gradlew wrapper version
 
-```shell
+```bash
+./gradlew wrapper --gradle-version=9.1.0 --distribution-type=bin
+```
+
+- Clean, Build, Test, Assemble, Release, Publish
+
+```bash
 ./gradlew --info clean
 ```
 
-```shell
+```bash
 ./gradlew :lib:spotlessApply
 ```
 
-```shell
+```bash
 ./gradlew --info build
 ```
 
-```shell
+```bash
 ./gradlew --info check
 ```
 
-```shell
-./gradlew --info jar
-```
-
-```shell
-./gradlew --info assemble
-```
-
-```shell
+```bash
 ./gradlew --info clean test
 ```
 
-```shell
-git commit -m "updated gradle-catalog" -a
+```bash
+./gradlew --info test
+```
+
+```bash
+./gradlew --info jar
+```
+
+```bash
+./gradlew --info assemble
+```
+
+```bash
+git commit -m "updates and fixes" -a
 git push
 ```
 
-```shell
-# only Rubens can release
-./gradlew --info release
+```bash
+./gradlew --info jar
 ```
-
-```shell
-git checkout release
-git pull
-./gradlew --info publish
-git checkout main
-```
-
-## IntelliJ - GitHub Copilot `mcp.json`
 
 ```bash
-# location of mcp.json
-cat ~/.config/github-copilot/intellij/mcp.json
+./gradlew --info assemble
+```
+
+```bash
+# only Rubens can release
+./gradlew --info release
 ```
 
 ---

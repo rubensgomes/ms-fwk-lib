@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -28,107 +28,107 @@ import org.mockito.Mockito.`when`
 
 @DisplayName("CachedBodyHttpServletRequest")
 class CachedBodyHttpServletRequestTest {
-    @Test
-    fun `returns same body on multiple getInputStream calls`() {
-        val body = "Hello, World!".toByteArray()
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body)
+  @Test
+  fun `returns same body on multiple getInputStream calls`() {
+    val body = "Hello, World!".toByteArray()
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body)
 
-                override fun read(): Int = delegate.read()
+          override fun read(): Int = delegate.read()
 
-                override fun isFinished(): Boolean = delegate.available() == 0
+          override fun isFinished(): Boolean = delegate.available() == 0
 
-                override fun isReady(): Boolean = true
+          override fun isReady(): Boolean = true
 
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-
-        val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
-        val firstRead = cachedRequest.inputStream.readAllBytes()
-        val secondRead = cachedRequest.inputStream.readAllBytes()
-
-        assertArrayEquals(body, firstRead)
-        assertArrayEquals(body, secondRead)
-    }
-
-    @Test
-    fun `returns same body on multiple getReader calls`() {
-        val body = "Test Body"
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body.toByteArray())
-
-                override fun read(): Int = delegate.read()
-
-                override fun isFinished(): Boolean = delegate.available() == 0
-
-                override fun isReady(): Boolean = true
-
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-
-        val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
-        val firstRead = cachedRequest.reader.readText()
-        val secondRead = cachedRequest.reader.readText()
-
-        assertEquals(body, firstRead)
-        assertEquals(body, secondRead)
-    }
-
-    @Test
-    fun `handles empty request body`() {
-        val body = "".toByteArray()
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body)
-
-                override fun read(): Int = delegate.read()
-
-                override fun isFinished(): Boolean = delegate.available() == 0
-
-                override fun isReady(): Boolean = true
-
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-
-        val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
-        val readBytes = cachedRequest.inputStream.readAllBytes()
-        val readText = cachedRequest.reader.readText()
-
-        assertArrayEquals(body, readBytes)
-        assertEquals("", readText)
-    }
-
-    @Test
-    fun `isFinished returns true after reading all bytes`() {
-        val body = "abc".toByteArray()
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body)
-
-                override fun read(): Int = delegate.read()
-
-                override fun isFinished(): Boolean = delegate.available() == 0
-
-                override fun isReady(): Boolean = true
-
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-
-        val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
-        val servletInputStream = cachedRequest.inputStream
-        while (servletInputStream.read() != -1) {
-            // consume all bytes
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
         }
-        assertTrue(servletInputStream.isFinished)
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+
+    val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
+    val firstRead = cachedRequest.inputStream.readAllBytes()
+    val secondRead = cachedRequest.inputStream.readAllBytes()
+
+    assertArrayEquals(body, firstRead)
+    assertArrayEquals(body, secondRead)
+  }
+
+  @Test
+  fun `returns same body on multiple getReader calls`() {
+    val body = "Test Body"
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body.toByteArray())
+
+          override fun read(): Int = delegate.read()
+
+          override fun isFinished(): Boolean = delegate.available() == 0
+
+          override fun isReady(): Boolean = true
+
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
+        }
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+
+    val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
+    val firstRead = cachedRequest.reader.readText()
+    val secondRead = cachedRequest.reader.readText()
+
+    assertEquals(body, firstRead)
+    assertEquals(body, secondRead)
+  }
+
+  @Test
+  fun `handles empty request body`() {
+    val body = "".toByteArray()
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body)
+
+          override fun read(): Int = delegate.read()
+
+          override fun isFinished(): Boolean = delegate.available() == 0
+
+          override fun isReady(): Boolean = true
+
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
+        }
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+
+    val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
+    val readBytes = cachedRequest.inputStream.readAllBytes()
+    val readText = cachedRequest.reader.readText()
+
+    assertArrayEquals(body, readBytes)
+    assertEquals("", readText)
+  }
+
+  @Test
+  fun `isFinished returns true after reading all bytes`() {
+    val body = "abc".toByteArray()
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body)
+
+          override fun read(): Int = delegate.read()
+
+          override fun isFinished(): Boolean = delegate.available() == 0
+
+          override fun isReady(): Boolean = true
+
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
+        }
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+
+    val cachedRequest = CachedBodyHttpServletRequest(mockRequest)
+    val servletInputStream = cachedRequest.inputStream
+    while (servletInputStream.read() != -1) {
+      // consume all bytes
     }
+    assertTrue(servletInputStream.isFinished)
+  }
 }
