@@ -26,30 +26,56 @@ rootProject.name = "ms-fwk-lib"
 // The project type should match "app" or "lib" depending on project nature
 include("lib")
 
+// ------------------- Plugin Management -------------------
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    // Fetch releasePluginVersion directly from settings.extra.properties
+    val releasePluginVersion = settings.extra.properties["releasePluginVersion"] as? String
+        ?: throw GradleException("Property 'releasePluginVersion' not found in gradle.properties")
+
+    plugins {
+        id("net.researchgate.release") version releasePluginVersion
+    }
+}
+
+// ------------------- Global Plugins -------------------
 plugins {
-    // Apply the foojay-resolver plugin to allow automatic download of JDKs
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
+// ------------------- Dependency Resolution -------------------
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-    repositories {
-        // URLs of Rubens' public GitHub Package Maven repositories.
-        maven {
-            url = uri("https://maven.pkg.github.com/rubensgomes/gradle-catalog")
-            credentials {
-                username = System.getenv("USERNAME")
-                password = System.getenv("TOKEN")
+
+    // Helper function to configure GitHub Maven repos with credentials
+    fun RepositoryHandler.githubRepo(url: String?) {
+        if (!url.isNullOrBlank()) {
+            maven {
+                setUrl(url)
+                credentials {
+                    username = System.getenv("GITHUB_USER")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
             }
         }
     }
 
+    // Fetch GitHub repo URLs directly from settings.extra.properties
+    val jvmLibsRepoPackages = settings.extra.properties["jvmLibsRepoPackages"] as? String
+
+    repositories {
+        mavenCentral()
+        google()
+        githubRepo(jvmLibsRepoPackages)
+    }
+
     versionCatalogs {
         create("libs") {
-            // This is Rubens' Gradle version catalog to manage the versions of
-            // plugins and dependencies used in a Gradle build file.
-            // NOTE: You should replace with our own Gradle Version catalog. Rubens may
-            // deactivate this Gradle version catalog at anytime without notice.
-            from("com.rubensgomes:gradle-catalog:0.0.10")
+            from("com.rubensgomes:gradle-catalog:0.0.30")
         }
     }
 }

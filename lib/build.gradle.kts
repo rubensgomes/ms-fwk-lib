@@ -24,52 +24,24 @@ plugins {
     id("idea")
     id("maven-publish")
     id("version-catalog")
-    // org.jetbrains.kotlin.jvm
     alias(libs.plugins.kotlin.jvm)
-    // org.jetbrains.kotlin.plugin.spring
     alias(libs.plugins.kotlin.spring)
-    // net.researchgate.release
     alias(libs.plugins.release)
-    // org.sonarqube
     alias(libs.plugins.sonarqube)
-    // com.diffplug.spotless
     alias(libs.plugins.spotless)
-    // org.springframework.boot
     alias(libs.plugins.spring.boot)
-    // io.spring.dependency-management
     alias(libs.plugins.spring.dependency.management)
-    // com.dorongold.task-tree
     alias(libs.plugins.task.tree)
 }
 
-// --------------- >>> gradle properties <<< ----------------------------------
-// properties used to configure "jar" and "publish" tasks
-val group: String by project
-val artifact: String by project
-val version: String by project
-val title: String by project
-val license: String by project
-val licenseUrl: String by project
-val developerEmail: String by project
-val developerId: String by project
-val developerName: String by project
-val scmConnection: String by project
-val scmUrl: String by project
-val repsyUrl: String by project
-// REPSY_USERNAME must be defined as an environment variable
-// REPSY_PASSWORD must be defined as an environment variable
-val repsyUsername: String? = System.getenv("REPSY_USERNAME")
-val repsyPassword: String? = System.getenv("REPSY_PASSWORD")
+// ------------------- Debug Mode -------------------
+val isDebugBuild = project.hasProperty("debug") && project.property("debug") == "true"
 
-project.group = group
-project.version = version
-project.description = description
-
-// --------------- >>> repositories <<< ---------------------------------------
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://repo.repsy.io/mvn/rubensgomes/default/") }
+if (isDebugBuild) {
+    val versionCatalog = versionCatalogs.named("libs")
+    println("Library aliases: ${versionCatalog.libraryAliases}")
+    println("Bundle aliases: ${versionCatalog.bundleAliases}")
+    println("Plugin aliases: ${versionCatalog.pluginAliases}")
 }
 
 // --------------- >>> dependencies <<< ---------------------------------------
@@ -82,6 +54,10 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // ########## implementation #################################################
+    // Import the Spring Boot 4 BOM
+    implementation(platform(libs.spring.boot.bom))
+    testImplementation(platform(libs.spring.boot.bom))
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
@@ -89,6 +65,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
+
     // other third-party libs
     implementation("org.apache.commons:commons-lang3")
     // io.github.oshai:kotlin-logging-jvm
@@ -104,15 +81,6 @@ dependencies {
 }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> Gradle Base Plugin <<< ---------------------------------
-// NOTE: This section is dedicated to configuring the Gradle base plugin.
-// ----------------------------------------------------------------------------
-// https://docs.gradle.org/current/userguide/base_plugin.html
-
-// run sonar independently since it requires a remote connection to sonarcloud.io
-// tasks.check { dependsOn("sonar") }
-
-// ----------------------------------------------------------------------------
 // --------------- >>> Gradle IDEA Plugin <<< ---------------------------------
 // NOTE: This section is dedicated to configuring the Idea plugin.
 // ----------------------------------------------------------------------------
@@ -120,8 +88,6 @@ dependencies {
 
 idea {
     module {
-        // download javadocs and sources:
-        // $ ./gradlew cleanIdea idea
         isDownloadJavadoc = true
         isDownloadSources = true
     }
@@ -137,9 +103,13 @@ java {
     withSourcesJar()
     withJavadocJar()
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-        vendor.set(JvmVendorSpec.AMAZON)
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
+}
+
+// Disable bootJar since this is a library, not a Spring Boot application
+tasks.bootJar {
+    enabled = false
 }
 
 tasks.jar {
@@ -165,6 +135,129 @@ tasks.javadoc {
             "Xdoclint:none",
             "-quiet",
         )
+    }
+}
+
+// ----------------------------------------------------------------------------
+// --------------- >>> Gradle Maven Publish Plugin <<< ------------------------
+// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/publishing_maven.html
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            versionMapping {
+                usage("java-api") { fromResolutionOf("runtimeClasspath") }
+                usage("java-runtime") { fromResolutionResult() }
+            }
+
+            groupId = project.group.toString()
+            artifactId = project.findProperty("artifactId") as String
+            version = project.version.toString()
+
+            from(components["java"])
+
+            // POM configuration
+            pom {
+                name = project.properties["title"] as String
+                inceptionYear = "2025"
+                packaging = "jar"
+
+                licenses {
+                    license {
+                        name = project.properties["license"] as String
+                        url = project.properties["licenseUrl"] as String
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = project.properties["developerId"] as String
+                        name = project.properties["developerName"] as String
+                        email = project.properties["developerEmail"] as String
+                    }
+                }
+
+                scm {
+                    connection = project.properties["scmConnection"] as String
+                    developerConnection = project.properties["scmConnection"] as String
+                    url = project.properties["scmUrl"] as String
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri(project.properties["jvmLibsRepoPackages"] as String)
+            credentials {
+                username = System.getenv("GITHUB_USER")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+val licenseHeaderText =
+    """
+    /*
+     * Copyright 2026 Rubens Gomes
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * You may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+    """.trimIndent()
+
+// ----------------------------------------------------------------------------
+// --------------- >>> com.diffplug.spotless Plugin <<< -----------------------
+// NOTE: This section is dedicated to configuring the spotless plugin.
+// ----------------------------------------------------------------------------
+// https://github.com/diffplug/spotless
+
+spotless {
+    // Java formatting
+    java {
+        target("src/**/*.java")
+        googleJavaFormat()
+        removeUnusedImports()
+        licenseHeader(licenseHeaderText)
+        importOrder("java", "javax", "org", "com", "")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    // Kotlin formatting
+    kotlin {
+        target("src/**/*.kt")
+        ktfmt()
+        licenseHeader(licenseHeaderText)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    // JSON formatting
+    json {
+        target("src/**/*.json")
+        jackson()
+    }
+
+    // Kotlin Gradle DSL formatting (root + submodules)
+    kotlinGradle {
+        target("*.gradle.kts")
+        // .editorconfig for fine-grained control
+        ktlint().setEditorConfigPath("$rootDir/.editorconfig")
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
@@ -200,154 +293,6 @@ tasks.test {
 }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> com.diffplug.spotless Plugin <<< -----------------------
-// NOTE: This section is dedicated to configuring the spotless plugin.
-// ----------------------------------------------------------------------------
-// https://github.com/diffplug/spotless
-
-spotless {
-    java {
-        target("src/**/*.java")
-
-        // Use Google Java Format
-        googleJavaFormat()
-
-        // Remove unused imports
-        removeUnusedImports()
-
-        licenseHeader(
-            """
-            /*
-             * Copyright 2025 Rubens Gomes
-             *
-             * Licensed under the Apache License, Version 2.0 (the "License");
-             * you may not use this file except in compliance with the License.
-             * You may obtain a copy of the License at
-             *
-             *     http://www.apache.org/licenses/LICENSE-2.0
-             *
-             * Unless required by applicable law or agreed to in writing, software
-             * distributed under the License is distributed on an "AS IS" BASIS,
-             * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-             * See the License for the specific language governing permissions and
-             * limitations under the License.
-             */
-            """.trimIndent(),
-        )
-
-        // Custom import order
-        importOrder("java", "javax", "org", "com", "")
-
-        // Trim trailing whitespace
-        trimTrailingWhitespace()
-
-        // End with newline
-        endWithNewline()
-    }
-
-    json {
-        target("src/**/*.json")
-        jackson()
-    }
-
-    // Format Kotlin files (if you add any)
-    kotlin {
-        target("src/**/*.kt")
-        ktfmt().kotlinlangStyle()
-        licenseHeader(
-            """
-            /*
-             * Copyright 2025 Rubens Gomes
-             *
-             * Licensed under the Apache License, Version 2.0 (the "License");
-             * you may not use this file except in compliance with the License.
-             * You may obtain a copy of the License at
-             *
-             *     http://www.apache.org/licenses/LICENSE-2.0
-             *
-             * Unless required by applicable law or agreed to in writing, software
-             * distributed under the License is distributed on an "AS IS" BASIS,
-             * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-             * See the License for the specific language governing permissions and
-             * limitations under the License.
-             */
-            """.trimIndent(),
-        )
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-
-    // Format Gradle Kotlin DSL build file
-    kotlinGradle {
-        target("*.gradle.kts")
-        // Use .editorconfig for fine-grained control
-        ktlint().setEditorConfigPath("../.editorconfig")
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-}
-
-// ----------------------------------------------------------------------------
-// --------------- >>> Gradle Maven Publish Plugin <<< ------------------------
-// NOTE: This section is dedicated to configuring the maven-publich plugin.
-// ----------------------------------------------------------------------------
-// https://docs.gradle.org/current/userguide/publishing_maven.html
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            versionMapping {
-                usage("java-api") { fromResolutionOf("runtimeClasspath") }
-                usage("java-runtime") { fromResolutionResult() }
-            }
-
-            groupId = project.group.toString()
-            artifactId = artifact
-            version = project.version.toString()
-
-            from(components["java"])
-
-            pom {
-                name = title
-                inceptionYear = "2025"
-                packaging = "jar"
-
-                licenses {
-                    license {
-                        name = license
-                        url = licenseUrl
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = developerId
-                        name = developerName
-                        email = developerEmail
-                    }
-                }
-
-                scm {
-                    connection = scmConnection
-                    developerConnection = scmConnection
-                    url = scmUrl
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri(repsyUrl)
-            credentials {
-                username = repsyUsername
-                password = repsyPassword
-            }
-        }
-    }
-}
-
-// ----------------------------------------------------------------------------
 // --------------- >>> net.researchgate.release Plugin <<< --------------------
 // NOTE: This section is dedicated to configuring the release plugin.
 // ----------------------------------------------------------------------------
@@ -357,5 +302,63 @@ release {
     with(git) {
         pushReleaseVersionBranch.set("release")
         requireBranch.set("main")
+    }
+}
+
+tasks.afterReleaseBuild {
+    dependsOn("publish")
+}
+
+// ------------------- Debug Info -----------------------
+tasks.register("debugInfo") {
+    group = "help"
+    description = "Prints debug information for troubleshooting build and publishing issues"
+
+    doLast {
+        println("========== DEBUG INFO ==========")
+
+        // Project info
+        println("Project: ${project.name}")
+        println("Group: ${project.group}")
+        println("Version: ${project.version}")
+        println("Project dir: ${project.projectDir}")
+        println("Build dir:  ${layout.buildDirectory.asFile.get()}")
+        println("Gradle version: ${gradle.gradleVersion}")
+        println("Kotlin DSL: true")
+
+        // Java info
+        println("Java version: ${System.getProperty("java.version")}")
+        println("Java vendor: ${System.getProperty("java.vendor")}")
+        println("Java home: ${System.getProperty("java.home")}")
+
+        // OS info
+        println("OS: ${System.getProperty("os.name")} ${System.getProperty("os.version")} (${System.getProperty("os.arch")})")
+        println("User home: ${System.getProperty("user.home")}")
+
+        // Repositories
+        println("Repositories:")
+        project.repositories.forEach { repo ->
+            when (repo) {
+                is MavenArtifactRepository -> println(" - ${repo.name}: ${repo.url}")
+                is IvyArtifactRepository -> println(" - ${repo.name}: ${repo.url}")
+                is FlatDirectoryArtifactRepository -> println(" - ${repo.name}: (flat dir)")
+                else -> println(" - ${repo.name}: (unknown type)")
+            }
+        }
+
+        // Environment variables (print only safe ones)
+        val safeEnv = listOf("GITHUB_USER", "GITHUB_TOKEN")
+        println("Environment variables (safe subset):")
+        safeEnv.forEach { key ->
+            println(" - $key = ${System.getenv(key)}")
+        }
+
+        // Project properties
+        println("Project properties:")
+        project.properties.forEach { (k, v) ->
+            println(" - $k = $v")
+        }
+
+        println("================================")
     }
 }
