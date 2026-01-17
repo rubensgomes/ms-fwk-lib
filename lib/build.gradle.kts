@@ -117,7 +117,7 @@ tasks.jar {
         attributes(
             mapOf(
                 "Specification-Title" to project.properties["title"],
-                "Implementation-Title" to project.properties["artifact"],
+                "Implementation-Title" to project.properties["artifactId"],
                 "Implementation-Version" to project.properties["version"],
                 "Implementation-Vendor" to project.properties["developerName"],
                 "Built-By" to project.properties["developerId"],

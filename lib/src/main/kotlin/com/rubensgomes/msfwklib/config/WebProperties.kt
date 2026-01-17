@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -169,44 +169,44 @@ data class WebProperties(
      */
     val allowedMethods: List<String> = listOf(HttpMethod.GET.name())
 ) {
-    /**
-     * Initializer block that validates the configuration at application startup.
-     *
-     * This validation ensures that the application fails fast with clear error messages if the
-     * configuration is invalid, rather than failing at runtime when requests are processed.
-     *
-     * ## Validation Steps:
-     * 1. **Empty List Check**: Ensures at least one HTTP method is configured
-     * 2. **Method Validation**: Verifies each method name is a valid HTTP method
-     * 3. **Logging**: Records validation results for debugging and auditing
-     *
-     * ## Error Conditions:
-     * - Throws [IllegalArgumentException] if `allowedMethods` is empty
-     * - Throws [IllegalArgumentException] if any method name is not a valid HTTP method
-     *
-     * ## Logging Behavior:
-     * - Logs error messages for invalid configurations
-     * - Logs debug messages for each valid method (useful for troubleshooting)
-     *
-     * @throws IllegalArgumentException if the configuration is invalid
-     */
-    init {
-        // run checks to ensure the "app.web.allowed-methods" is valid
-        if (allowedMethods.isEmpty()) {
-            val msg = "Spring configuration property [app.web.allowed-methods] must not be empty"
-            log.error { msg }
-            throw IllegalArgumentException(msg)
-        }
-
-        for (method in allowedMethods) {
-            val httpMethod = HttpMethod.valueOf(method)
-            when (httpMethod) {
-                in HttpMethod.values() -> log.debug { "HTTP method [$method] is valid" }
-                else -> {
-                    log.error { "HTTP method [$method] is not valid" }
-                    throw IllegalArgumentException("HTTP method [$method] is not valid")
-                }
-            }
-        }
+  /**
+   * Initializer block that validates the configuration at application startup.
+   *
+   * This validation ensures that the application fails fast with clear error messages if the
+   * configuration is invalid, rather than failing at runtime when requests are processed.
+   *
+   * ## Validation Steps:
+   * 1. **Empty List Check**: Ensures at least one HTTP method is configured
+   * 2. **Method Validation**: Verifies each method name is a valid HTTP method
+   * 3. **Logging**: Records validation results for debugging and auditing
+   *
+   * ## Error Conditions:
+   * - Throws [IllegalArgumentException] if `allowedMethods` is empty
+   * - Throws [IllegalArgumentException] if any method name is not a valid HTTP method
+   *
+   * ## Logging Behavior:
+   * - Logs error messages for invalid configurations
+   * - Logs debug messages for each valid method (useful for troubleshooting)
+   *
+   * @throws IllegalArgumentException if the configuration is invalid
+   */
+  init {
+    // run checks to ensure the "app.web.allowed-methods" is valid
+    if (allowedMethods.isEmpty()) {
+      val msg = "Spring configuration property [app.web.allowed-methods] must not be empty"
+      log.error { msg }
+      throw IllegalArgumentException(msg)
     }
+
+    for (method in allowedMethods) {
+      val httpMethod = HttpMethod.valueOf(method)
+      when (httpMethod) {
+        in HttpMethod.values() -> log.debug { "HTTP method [$method] is valid" }
+        else -> {
+          log.error { "HTTP method [$method] is not valid" }
+          throw IllegalArgumentException("HTTP method [$method] is not valid")
+        }
+      }
+    }
+  }
 }

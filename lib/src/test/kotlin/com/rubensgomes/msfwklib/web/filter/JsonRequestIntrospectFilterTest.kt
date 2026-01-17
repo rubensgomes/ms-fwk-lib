@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -33,130 +33,130 @@ import org.springframework.http.MediaType
 @DisplayName("JsonRequestIntrospectFilter")
 class JsonRequestIntrospectFilterTest {
 
-    @BeforeEach
-    fun setUp() {
-        ContextHolder.clear()
-    }
+  @BeforeEach
+  fun setUp() {
+    ContextHolder.clear()
+  }
 
-    @AfterEach
-    fun tearDown() {
-        ContextHolder.clear()
-    }
+  @AfterEach
+  fun tearDown() {
+    ContextHolder.clear()
+  }
 
-    @Test
-    fun `processes POST request with JSON content type and extracts interesting properties`() {
-        val body = """{"clientId":"12345","transactionId":"abcde","otherProperty":"ignored"}"""
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body.toByteArray())
+  @Test
+  fun `processes POST request with JSON content type and extracts interesting properties`() {
+    val body = """{"clientId":"12345","transactionId":"abcde","otherProperty":"ignored"}"""
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body.toByteArray())
 
-                override fun read(): Int = delegate.read()
+          override fun read(): Int = delegate.read()
 
-                override fun isFinished(): Boolean = delegate.available() == 0
+          override fun isFinished(): Boolean = delegate.available() == 0
 
-                override fun isReady(): Boolean = true
+          override fun isReady(): Boolean = true
 
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-        `when`(mockRequest.method).thenReturn("POST")
-        `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
+        }
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+    `when`(mockRequest.method).thenReturn("POST")
+    `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
 
-        val filter = JsonRequestIntrospectFilter()
-        val mockChain = mock(FilterChain::class.java)
+    val filter = JsonRequestIntrospectFilter()
+    val mockChain = mock(FilterChain::class.java)
 
-        filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
+    filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertEquals("12345", ContextHolder.get("clientId"))
-        assertEquals("abcde", ContextHolder.get("transactionId"))
-    }
+    assertEquals("12345", ContextHolder.get("clientId"))
+    assertEquals("abcde", ContextHolder.get("transactionId"))
+  }
 
-    @Test
-    fun `skips non-POST requests`() {
-        val mockRequest = mock(HttpServletRequest::class.java)
-        `when`(mockRequest.method).thenReturn("GET")
-        `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
+  @Test
+  fun `skips non-POST requests`() {
+    val mockRequest = mock(HttpServletRequest::class.java)
+    `when`(mockRequest.method).thenReturn("GET")
+    `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
 
-        val filter = JsonRequestIntrospectFilter()
-        val mockChain = mock(FilterChain::class.java)
+    val filter = JsonRequestIntrospectFilter()
+    val mockChain = mock(FilterChain::class.java)
 
-        filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
+    filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertEquals(null, ContextHolder.get("clientId"))
-        assertEquals(null, ContextHolder.get("transactionId"))
-    }
+    assertEquals(null, ContextHolder.get("clientId"))
+    assertEquals(null, ContextHolder.get("transactionId"))
+  }
 
-    @Test
-    fun `skips requests with non-JSON content type`() {
-        val mockRequest = mock(HttpServletRequest::class.java)
-        `when`(mockRequest.method).thenReturn("POST")
-        `when`(mockRequest.contentType).thenReturn(MediaType.TEXT_PLAIN_VALUE)
+  @Test
+  fun `skips requests with non-JSON content type`() {
+    val mockRequest = mock(HttpServletRequest::class.java)
+    `when`(mockRequest.method).thenReturn("POST")
+    `when`(mockRequest.contentType).thenReturn(MediaType.TEXT_PLAIN_VALUE)
 
-        val filter = JsonRequestIntrospectFilter()
-        val mockChain = mock(FilterChain::class.java)
+    val filter = JsonRequestIntrospectFilter()
+    val mockChain = mock(FilterChain::class.java)
 
-        filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
+    filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertEquals(null, ContextHolder.get("clientId"))
-        assertEquals(null, ContextHolder.get("transactionId"))
-    }
+    assertEquals(null, ContextHolder.get("clientId"))
+    assertEquals(null, ContextHolder.get("transactionId"))
+  }
 
-    @Test
-    fun `handles empty JSON body gracefully`() {
-        val body = "{}"
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body.toByteArray())
+  @Test
+  fun `handles empty JSON body gracefully`() {
+    val body = "{}"
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body.toByteArray())
 
-                override fun read(): Int = delegate.read()
+          override fun read(): Int = delegate.read()
 
-                override fun isFinished(): Boolean = delegate.available() == 0
+          override fun isFinished(): Boolean = delegate.available() == 0
 
-                override fun isReady(): Boolean = true
+          override fun isReady(): Boolean = true
 
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-        `when`(mockRequest.method).thenReturn("POST")
-        `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
+        }
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+    `when`(mockRequest.method).thenReturn("POST")
+    `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
 
-        val filter = JsonRequestIntrospectFilter()
-        val mockChain = mock(FilterChain::class.java)
+    val filter = JsonRequestIntrospectFilter()
+    val mockChain = mock(FilterChain::class.java)
 
-        filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
+    filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertEquals(null, ContextHolder.get("clientId"))
-        assertEquals(null, ContextHolder.get("transactionId"))
-    }
+    assertEquals(null, ContextHolder.get("clientId"))
+    assertEquals(null, ContextHolder.get("transactionId"))
+  }
 
-    @Test
-    fun `ignores properties not in the interestingProperties set`() {
-        val body = """{"unrelatedProperty":"value"}"""
-        val mockRequest = mock(HttpServletRequest::class.java)
-        val inputStream =
-            object : ServletInputStream() {
-                private val delegate = ByteArrayInputStream(body.toByteArray())
+  @Test
+  fun `ignores properties not in the interestingProperties set`() {
+    val body = """{"unrelatedProperty":"value"}"""
+    val mockRequest = mock(HttpServletRequest::class.java)
+    val inputStream =
+        object : ServletInputStream() {
+          private val delegate = ByteArrayInputStream(body.toByteArray())
 
-                override fun read(): Int = delegate.read()
+          override fun read(): Int = delegate.read()
 
-                override fun isFinished(): Boolean = delegate.available() == 0
+          override fun isFinished(): Boolean = delegate.available() == 0
 
-                override fun isReady(): Boolean = true
+          override fun isReady(): Boolean = true
 
-                override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
-            }
-        `when`(mockRequest.inputStream).thenReturn(inputStream)
-        `when`(mockRequest.method).thenReturn("POST")
-        `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
+          override fun setReadListener(readListener: jakarta.servlet.ReadListener?) {}
+        }
+    `when`(mockRequest.inputStream).thenReturn(inputStream)
+    `when`(mockRequest.method).thenReturn("POST")
+    `when`(mockRequest.contentType).thenReturn(MediaType.APPLICATION_JSON_VALUE)
 
-        val filter = JsonRequestIntrospectFilter()
-        val mockChain = mock(FilterChain::class.java)
+    val filter = JsonRequestIntrospectFilter()
+    val mockChain = mock(FilterChain::class.java)
 
-        filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
+    filter.doFilter(mockRequest, mock(ServletResponse::class.java), mockChain)
 
-        assertEquals(null, ContextHolder.get("clientId"))
-        assertEquals(null, ContextHolder.get("transactionId"))
-    }
+    assertEquals(null, ContextHolder.get("clientId"))
+    assertEquals(null, ContextHolder.get("transactionId"))
+  }
 }

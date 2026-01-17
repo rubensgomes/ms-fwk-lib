@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -31,43 +31,41 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest(classes = [TestApplication::class])
 @AutoConfigureMockMvc
 class GlobalExceptionHandlerTest {
-    @Autowired private lateinit var mockMvc: MockMvc
+  @Autowired private lateinit var mockMvc: MockMvc
 
-    @Test
-    fun `fails due to handleBadRequest`() {
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/badrequest").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isBadRequest)
-    }
+  @Test
+  fun `fails due to handleBadRequest`() {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/badrequest").accept(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isBadRequest)
+  }
 
-    @Test
-    fun `fails due to handleNotFound`() {
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/notfound").accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isNotFound)
-    }
+  @Test
+  fun `fails due to handleNotFound`() {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/notfound").accept(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isNotFound)
+  }
 
-    @Test
-    fun `fails due to handleMethodNotAllowed`() {
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch("/methodNotAllowed").accept(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(status().isMethodNotAllowed)
-    }
+  @Test
+  fun `fails due to handleMethodNotAllowed`() {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.patch("/methodNotAllowed").accept(MediaType.APPLICATION_JSON)
+        )
+        .andDo(print())
+        .andExpect(status().isMethodNotAllowed)
+  }
 
-    @Test
-    fun `fails due to handleNotAcceptable`() {
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/notAcceptable").accept(MediaType.APPLICATION_JSON)
-            )
-            .andDo(print())
-            .andExpect(status().isNotAcceptable)
-    }
+  @Test
+  fun `fails due to handleNotAcceptable`() {
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/notAcceptable").accept(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        .andExpect(status().isNotAcceptable)
+  }
 
-    // TODO add further tests
+  // TODO add further tests
 }

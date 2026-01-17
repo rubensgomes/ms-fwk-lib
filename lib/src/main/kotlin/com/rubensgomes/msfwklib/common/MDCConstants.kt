@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -50,34 +50,34 @@ package com.rubensgomes.msfwklib.common
  * @since 0.0.1
  */
 object MDCConstants {
-    /**
-     * MDC key for storing client identifier information.
-     *
-     * This key is used to store a unique identifier for the client making the request. The client
-     * ID can be extracted from HTTP headers, request body, or other sources and is automatically
-     * populated by framework components.
-     */
-    const val CLIENT_ID_KEY = "clientId"
+  /**
+   * MDC key for storing client identifier information.
+   *
+   * This key is used to store a unique identifier for the client making the request. The client ID
+   * can be extracted from HTTP headers, request body, or other sources and is automatically
+   * populated by framework components.
+   */
+  const val CLIENT_ID_KEY = "clientId"
 
-    /**
-     * MDC key for storing transaction identifier information.
-     *
-     * This key is used to store a unique identifier for the current transaction or request. The
-     * transaction ID helps correlate log entries across different components and services for the
-     * same logical operation.
-     */
-    const val TRANSACTION_ID_KEY = "transactionId"
+  /**
+   * MDC key for storing transaction identifier information.
+   *
+   * This key is used to store a unique identifier for the current transaction or request. The
+   * transaction ID helps correlate log entries across different components and services for the
+   * same logical operation.
+   */
+  const val TRANSACTION_ID_KEY = "transactionId"
 
-    /**
-     * Immutable set containing all supported MDC keys.
-     *
-     * This collection can be used for:
-     * - Iterating over all available MDC keys
-     * - Validating whether a key is supported by the framework
-     * - Bulk operations like clearing all framework-related MDC entries
-     * - Configuration validation in components that work with MDC data
-     *
-     * The set is immutable to prevent accidental modification of the supported keys.
-     */
-    val MDC_KEYS = setOf(CLIENT_ID_KEY, TRANSACTION_ID_KEY)
+  /**
+   * Immutable set containing all supported MDC keys.
+   *
+   * This collection can be used for:
+   * - Iterating over all available MDC keys
+   * - Validating whether a key is supported by the framework
+   * - Bulk operations like clearing all framework-related MDC entries
+   * - Configuration validation in components that work with MDC data
+   *
+   * The set is immutable to prevent accidental modification of the supported keys.
+   */
+  val MDC_KEYS = setOf(CLIENT_ID_KEY, TRANSACTION_ID_KEY)
 }

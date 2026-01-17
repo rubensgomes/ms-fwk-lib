@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -72,15 +72,14 @@ private val log = KotlinLogging.logger {}
  */
 @Configuration
 open class FilterConfiguration {
-    @Bean
-    open fun mdcClearFilter(): FilterRegistrationBean<MDCClearFilter> {
-        log.debug { "registering MDCClearFilter" }
-        val bean = FilterRegistrationBean<MDCClearFilter>()
-        bean.filter = MDCClearFilter()
-        bean.order = Ordered.HIGHEST_PRECEDENCE
-        bean.isEnabled = true
-        bean.addUrlPatterns("/*")
-        bean.setName(MDCClearFilter::class.java.name)
-        return bean
-    }
+  @Bean
+  open fun mdcClearFilter(): FilterRegistrationBean<MDCClearFilter> {
+    log.debug { "registering MDCClearFilter" }
+    val bean = FilterRegistrationBean(MDCClearFilter())
+    bean.order = Ordered.HIGHEST_PRECEDENCE
+    bean.isEnabled = true
+    bean.addUrlPatterns("/*")
+    bean.setName(MDCClearFilter::class.java.name)
+    return bean
+  }
 }

@@ -1,8 +1,8 @@
 /*
- * Copyright 2025 Rubens Gomes
+ * Copyright 2026 Rubens Gomes
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -19,13 +19,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class RootErrorMessageResolverTest {
-    private val obj = RootErrorMessageResolver
+  private val obj = RootErrorMessageResolver
 
-    @Test
-    fun `ensure root causes message matches expected message`() {
-        val expected = "hello world"
-        val ex = RuntimeException(expected)
-        val actual = obj.resolveMessage(ex)
-        assertEquals(expected, actual)
-    }
+  @Test
+  fun `ensure root causes message matches expected message`() {
+    val expected = "hello world"
+    val ex = RuntimeException(expected)
+    val actual = obj.resolveMessage(ex)
+    assertEquals(expected, actual)
+  }
 }
